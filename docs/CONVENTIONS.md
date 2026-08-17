@@ -238,6 +238,29 @@ sobra/
 └── worker/          bot do Telegram (ainda não existe)
 ```
 
+## Como commitar
+
+Um commit é uma mudança coerente, que cabe numa frase e que dá para desfazer
+sozinha. **Se a mensagem precisa de "e", são dois commits.**
+
+Commite quando chegar num estado ao qual você voltaria. Experimento pela metade
+fica na máquina, não no histórico. Na prática isso dá várias vezes por dia, e o
+push acontece ao terminar cada bloco.
+
+Mensagem em inglês, no padrão `tipo: ação no imperativo`, porque a lista de commits
+é a peça mais visível do repositório para quem não lê português. Tipos em uso:
+`feat`, `fix`, `docs`, `chore`, `refactor`, `assets`.
+
+O corpo explica **por que**, não o que. O diff já diz o que mudou.
+
+```
+feat(mockup): make the month title double as the month selector
+
+The month was written twice on the same line, once in the heading and once
+inside the pill on the right. Collapsing them removes a control and frees the
+whole right side of the header.
+```
+
 ## Como registrar decisão
 
 `docs/DECISIONS.md` é append-only. Número novo, data, status, e as três seções:
