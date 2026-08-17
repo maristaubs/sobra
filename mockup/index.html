@@ -1,0 +1,1382 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sobra</title>
+<meta name="theme-color" content="#F7F3EE">
+<link rel="icon" href="../logo/sobra-favicon-32.png">
+<link rel="apple-touch-icon" href="../logo/sobra-icone-1024.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300..900&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   Sobra, mockup estático da fase 1.
+   Todos os números são falsos e escritos à mão. Nenhuma chamada de rede.
+   ========================================================================== */
+
+:root{
+  /* superfícies */
+  --creme:        #F7F3EE;
+  --creme-fundo:  #F2EDE6;
+  --branco:       #FFFDFC;
+  --linha:        #EDE6DD;
+
+  /* tinta */
+  --ink:          #1A1613;
+  --ink-70:       #5C534B;
+  --ink-45:       #8D847A;
+  --ink-28:       #B4ABA1;
+
+  /* marca */
+  --malva:        #B0779E;
+  --malva-texto:  #7A4A68;
+  --malva-suave:  #F0E4EC;
+
+  /* dados */
+  --positivo:     #4F7A5E;
+  --negativo:     #8C3A46;
+  --previsto:     #9A9189;
+
+  /* categorias, paleta análoga e dessaturada */
+  --c-moradia:    #7E94A8;
+  --c-mercado:    #8FA68E;
+  --c-saude:      #B0779E;
+  --c-pet:      #C08573;
+  --c-restaurantes:#C9A46A;
+  --c-roupas:     #9A8FB0;
+  --c-casa:       #B7A88F;
+  --c-assinaturas:#8A93A0;
+  --c-transporte: #6E9490;
+  --c-presentes:  #C48B8B;
+  --c-viagem:     #8FA9C0;
+  --c-dividas:    #9E6B72;
+  --c-impostos:   #9C9186;
+
+  --r-card:  24px;
+  --r-inner: 16px;
+  --sombra:  0 1px 2px rgba(26,22,19,.03), 0 8px 24px -18px rgba(26,22,19,.18);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html{ -webkit-text-size-adjust:100% }
+
+body{
+  font-family:"Figtree","Avenir Next","Futura",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--creme);
+  color:var(--ink);
+  font-size:15px;
+  line-height:1.45;
+  letter-spacing:-.005em;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:var(--malva-texto);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--malva);outline-offset:3px;border-radius:6px}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* dinheiro sempre alinhado em coluna */
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;letter-spacing:-.02em}
+.cifrao{font-size:.62em;font-weight:500;color:var(--ink-45);margin-right:.24em;letter-spacing:0}
+/* Todo valor em real carrega o símbolo. Nos números grandes ele é a .cifrao,
+   nos valores de linha é a .rs, um pouco menor e mais clara que o número. */
+.rs{font-size:.8em;font-weight:500;color:inherit;opacity:.6;margin-right:.2em;letter-spacing:0}
+
+/* ---------- onda de marca, eco do logo ---------- */
+.onda{
+  position:absolute;inset:0 0 auto 0;height:480px;
+  pointer-events:none;z-index:0;overflow:hidden;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 66%,transparent 100%);
+          mask-image:linear-gradient(to bottom,#000 0,#000 66%,transparent 100%);
+}
+.onda svg{position:absolute;top:0;left:0;width:100%;height:100%}
+
+/* ---------- topo ---------- */
+.topo{
+  position:relative;z-index:1;
+  max-width:1180px;margin:0 auto;
+  padding:22px 28px 0;
+  display:flex;align-items:center;gap:24px;
+}
+.marca{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.marca img{height:30px;width:auto;display:block}
+
+.nav-topo{display:flex;gap:4px;margin-left:8px}
+.nav-topo button{
+  padding:9px 18px;border-radius:999px;
+  font-size:14.5px;font-weight:500;color:var(--ink-70);
+  transition:background .15s,color .15s;
+}
+.nav-topo button:hover{background:#EFE9E1}
+.nav-topo button[aria-current]{background:var(--ink);color:#FCF9F6;font-weight:600}
+
+.topo-fim{margin-left:auto;display:flex;align-items:center;gap:10px}
+
+.btn-novo{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--malva);color:#fff;font-weight:600;font-size:14.5px;
+  padding:10px 20px 10px 16px;border-radius:999px;
+  transition:background .15s;
+}
+.btn-novo:hover{background:#9E668D}
+.btn-novo svg{width:17px;height:17px}
+
+.avatar{
+  width:38px;height:38px;border-radius:999px;
+  background:var(--malva-suave);color:var(--malva-texto);
+  display:grid;place-items:center;font-weight:700;font-size:14px;
+}
+
+/* ---------- estrutura ---------- */
+main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 120px}
+
+.view{display:none}
+.view.ativa{display:block}
+
+.cabecalho{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:24px;flex-wrap:wrap;
+  padding:38px 4px 26px;
+}
+.titulo{font-size:34px;font-weight:700;letter-spacing:-.035em;line-height:1.1}
+.subtitulo{font-size:15px;color:var(--ink-45);margin-top:6px;max-width:56ch}
+
+/* O título é o próprio seletor de mês: as setas colam nele e não existe pílula
+   separada. O mês fica escrito uma vez só na tela. O ano vai em tom mais claro,
+   porque o mês é o dado e o ano é contexto. */
+.tit-seletor{display:flex;align-items:center;gap:6px}
+.tit-seletor button{
+  width:34px;height:34px;border-radius:999px;display:grid;place-items:center;color:var(--ink-45);
+  transition:background .15s,color .15s;
+}
+.tit-seletor button:hover{background:#EFE9E1;color:var(--ink)}
+.tit-seletor svg{width:18px;height:18px}
+.tit-seletor .titulo{margin:0 4px}
+.titulo .ano{color:var(--ink-28);font-weight:600}
+
+/* ---------- cards ---------- */
+.card{
+  min-width:0;
+  background:var(--branco);
+  border-radius:var(--r-card);
+  padding:30px 32px;
+  box-shadow:var(--sombra);
+}
+.card + .card{margin-top:22px}
+
+.card-titulo{font-size:17px;font-weight:650;letter-spacing:-.02em}
+.card-nota{font-size:13.5px;color:var(--ink-45);margin-top:3px}
+.card-cabecalho{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px}
+
+/* minmax(0,…) para a trilha poder encolher abaixo do min-content dos filhos,
+   senão o texto sem quebra dentro da lista alarga a página inteira */
+.colunas{
+  display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);
+  gap:22px;align-items:stretch;margin-top:22px;
+}
+.coluna{min-width:0;display:flex;flex-direction:column;gap:22px}
+.coluna > .card + .card{margin-top:0}
+
+/* A coluna da lista segue a altura da coluna da direita, para os dois lados
+   terminarem na mesma linha e o card de parcelamentos encostar reto embaixo.
+   Quem manda na altura é a direita, então a esquerda é tirada do fluxo com
+   position absolute e a lista rola por dentro. */
+.coluna-lista{position:relative;min-height:520px}
+.coluna-lista > .card{
+  position:absolute;inset:0;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+/* A lista não rola. Ela mostra um punhado de lançamentos e o resto fica atrás
+   do "ver todos", que desce para o pé do card. */
+.coluna-lista .ver-tudo{margin-top:auto}
+
+/* o card de parcelamentos fecha a home ocupando as duas colunas */
+.faixa-cheia{grid-column:1 / -1}
+
+/* ---------- os três números ---------- */
+
+/* A renda prevista mora aqui, no alto do card, e em nenhum outro lugar da tela.
+   Ela é o dado de entrada, não é um dos três. */
+.renda-topo{padding-bottom:22px;margin-bottom:24px;border-bottom:1px solid var(--linha)}
+.renda-topo .rot{
+  font-size:12.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-45);
+}
+.renda-topo .linha{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:9px}
+.renda-topo .val{font-size:26px;font-weight:750;letter-spacing:-.03em}
+.renda-topo .rec{font-size:13px;color:var(--ink-45)}
+
+.tres{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+.stat{padding:2px 0;min-width:0}
+.stat + .stat{padding-left:34px;border-left:1px solid var(--linha)}
+.stat-rotulo{
+  font-size:12.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-45);display:flex;align-items:center;gap:7px;
+}
+.stat-valor{font-size:40px;font-weight:750;letter-spacing:-.04em;line-height:1.15;margin-top:10px}
+.stat-valor.previsto{color:var(--previsto)}
+.stat-valor.positivo{color:var(--positivo)}
+.stat-valor.negativo{color:var(--negativo)}
+
+.marca-previsto{
+  width:11px;height:11px;border-radius:3px;flex:0 0 auto;
+  background:repeating-linear-gradient(135deg,var(--ink-28) 0 2px,#E4DDD5 2px 4px);
+}
+.marca-confirmado{width:11px;height:11px;border-radius:3px;flex:0 0 auto;background:var(--ink)}
+.marca-sobra{width:11px;height:11px;border-radius:3px;flex:0 0 auto;background:#CBDBCF}
+.marca-estouro{
+  width:11px;height:11px;border-radius:3px;flex:0 0 auto;
+  background:repeating-linear-gradient(135deg,var(--negativo) 0 3px,#C98F97 3px 6px);
+}
+
+/* Barra empilhada da renda. A legenda só carrega porcentagem: a cor de cada
+   segmento já está ao lado do rótulo do número, logo acima. */
+.medidor{margin-top:30px;position:relative}
+.medidor-trilha{
+  position:relative;
+  display:flex;height:14px;border-radius:999px;overflow:hidden;background:#F0EAE3;gap:2px;
+}
+.medidor-trilha span{display:block;height:100%}
+.seg-confirmado{background:var(--ink)}
+.seg-previsto{background:repeating-linear-gradient(135deg,#ABA299 0 3px,#D9D2CA 3px 6px)}
+.seg-sobra{background:#CBDBCF}
+
+/* ---------- estado de estouro ----------
+   Quando o gasto passa da renda não existe segmento de sobra, porque não existe
+   largura negativa. Então a trilha passa a ser escalada pelo gasto, a renda vira
+   uma marca vertical, e o trecho depois da marca ganha hachura vinho por cima.
+   A escala muda, e é por isso que a marca leva rótulo escrito. */
+.medidor.estourou{padding-top:24px}
+.seg-estouro{
+  position:absolute;top:0;bottom:0;right:0;
+  background:repeating-linear-gradient(135deg,var(--negativo) 0 3px,#C1707B 3px 6px);
+}
+.marco-renda{
+  position:absolute;top:0;bottom:0;width:2px;background:var(--branco);
+  transform:translateX(-1px);
+}
+.marco-nota{
+  position:absolute;top:0;transform:translateX(-50%);
+  font-size:12px;font-weight:650;color:var(--ink-70);white-space:nowrap;
+}
+.medidor-legenda{
+  display:flex;flex-wrap:wrap;gap:18px;margin-top:14px;
+  font-size:13px;color:var(--ink-70);
+}
+.medidor-legenda span{display:flex;align-items:center;gap:8px}
+.medidor-legenda .estouro{color:var(--negativo);font-weight:600}
+
+/* ---------- abas do card de lançamentos ----------
+   A aba é o próprio título do card, então economiza a linha que um título
+   separado gastaria. Lançamento é o que já aconteceu, previsto é o que vem. */
+.ab-titulo{display:flex;gap:22px;align-items:baseline;margin-bottom:20px}
+.ab-titulo button{
+  font-size:19px;font-weight:700;letter-spacing:-.025em;color:var(--ink-28);
+  display:flex;align-items:baseline;gap:9px;padding-bottom:5px;
+  border-bottom:2px solid transparent;transition:color .15s;
+}
+.ab-titulo button:hover{color:var(--ink-45)}
+.ab-titulo button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.ab-titulo button[aria-selected="true"]:hover{color:var(--ink)}
+.ab-titulo .n{
+  font-size:12.5px;font-weight:650;color:var(--ink-45);font-variant-numeric:tabular-nums;
+}
+
+/* cabeçalho de dia dentro da lista. Só existe em lançamento confirmado:
+   previsto é do mês, e o mês já está no seletor do topo da tela. */
+.dia{padding:16px 0 6px;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--ink-45)}
+.lista .dia:first-child{padding-top:0}
+.lista li[hidden]{display:none}
+
+/* ---------- lista de lançamentos ---------- */
+.lista{list-style:none}
+/* Sem linha entre lançamentos: quem agrupa é o cabeçalho de dia mais o espaço,
+   e não um traço. Com dias de um item só, o traço aparecia em uns e não em
+   outros, e o padrão furado parecia defeito. */
+.item{
+  display:flex;align-items:center;gap:16px;
+  padding:11px 0;
+}
+.item:first-child{padding-top:0}
+.bolha{
+  flex:0 0 auto;width:42px;height:42px;border-radius:999px;
+  display:grid;place-items:center;
+  background:#F3EEE9;
+  background:color-mix(in srgb,var(--cor) 13%,#fff);
+}
+.bolha svg{width:20px;height:20px;color:var(--cor)}
+.item-corpo{flex:1 1 auto;min-width:0}
+.item-desc{display:block;font-size:15px;font-weight:550;letter-spacing:-.01em}
+.item-meta{
+  display:block;font-size:12.5px;color:var(--ink-45);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.item-valor{
+  flex:0 0 auto;text-align:right;font-size:16px;font-weight:650;
+}
+.item--previsto .item-valor{color:var(--previsto);font-weight:550}
+.item-status{display:block;font-size:11.5px;color:var(--ink-45);font-weight:500;margin-top:2px}
+
+.tag{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:650;letter-spacing:.01em;
+  padding:3px 9px;border-radius:999px;vertical-align:1px;margin-left:8px;
+}
+.tag-reembolso{background:var(--malva-suave);color:var(--malva-texto)}
+.tag-ultima{background:#E4EDE6;color:var(--positivo)}
+.tag-previsto{background:#F0EDE8;color:var(--ink-45)}
+
+.ver-tudo{
+  display:block;text-align:center;margin-top:22px;padding-top:18px;
+  border-top:1px solid var(--linha);
+  font-size:14px;font-weight:600;color:var(--malva-texto);
+}
+
+/* ---------- barras de categoria ---------- */
+/* Uma linha por categoria: nome, barra e valor lado a lado. Treze categorias
+   cabem sem esticar o card, e é a coluna da direita que manda na altura da home. */
+.cat{
+  display:grid;grid-template-columns:118px minmax(0,1fr) 30px 74px;
+  align-items:center;gap:8px;padding:8px 0;
+}
+.cat-nome{
+  display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.cat-nome svg{width:16px;height:16px;color:var(--cor);flex:0 0 auto}
+.cat-barra{height:8px;border-radius:999px;background:#F1EBE4;overflow:hidden}
+/* min-width para categoria de 1% não sumir da barra */
+.cat-barra span{display:block;height:100%;min-width:3px;border-radius:999px;background:var(--cor)}
+.cat-pct{font-size:12.5px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.cat-valor{font-size:12px;color:var(--ink-45);text-align:right;white-space:nowrap}
+
+/* ---------- reembolso ---------- */
+.reemb{display:flex;align-items:center;gap:14px;padding:12px 0}
+.reemb + .reemb{border-top:1px solid var(--linha)}
+.reemb-valor{margin-left:auto;font-weight:700;font-size:17px;color:var(--malva-texto)}
+.rodape-card{
+  margin-top:20px;padding-top:16px;border-top:1px solid var(--linha);
+  font-size:13px;color:var(--ink-45);line-height:1.5;
+}
+
+/* ---------- próximos meses ---------- */
+.destaque{display:flex;align-items:flex-end;gap:44px;flex-wrap:wrap}
+.destaque-num{font-size:64px;font-weight:780;letter-spacing:-.045em;line-height:.95}
+.destaque-txt{font-size:16px;color:var(--ink-70);max-width:40ch;padding-bottom:6px}
+.destaque-txt strong{color:var(--ink);font-weight:650}
+
+.mes-linha{
+  display:block;width:100%;text-align:left;
+  padding:18px 20px;border-radius:var(--r-inner);
+  transition:background .15s;
+}
+.mes-linha:hover{background:#FAF6F1}
+.mes-linha[aria-expanded="true"]{background:#F7F2EC}
+.mes-topo{display:flex;align-items:baseline;justify-content:space-between;gap:18px;margin-bottom:11px}
+.mes-nome{font-size:16px;font-weight:650;letter-spacing:-.015em;text-transform:capitalize}
+.mes-pct{font-size:13px;color:var(--ink-45);font-weight:550;margin-left:9px;text-transform:none}
+.mes-seta{
+  width:15px;height:15px;color:var(--ink-28);vertical-align:-2px;margin-left:6px;
+  transition:transform .18s ease;
+}
+.mes-linha[aria-expanded="true"] .mes-seta{transform:rotate(180deg);color:var(--ink-70)}
+.mes-sobra{text-align:right;font-size:15px;font-weight:650;color:var(--positivo);white-space:nowrap}
+.mes-sobra small{display:block;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-45)}
+
+.mes-trilha{display:flex;height:20px;border-radius:8px;overflow:hidden;background:#F1EBE4;gap:2px}
+.mes-trilha span{display:block;height:100%}
+.seg-recorrente{background:#2A2320}
+.seg-parcela{background:#8C837A}
+.seg-programado{background:repeating-linear-gradient(135deg,#C3BAB1 0 3px,#E6E0D8 3px 6px)}
+
+.detalhe{display:none;padding:4px 20px 20px}
+.detalhe.ativa{display:block}
+.detalhe-lista{list-style:none;background:#FBF8F4;border-radius:var(--r-inner);padding:6px 20px}
+.detalhe-item{display:flex;align-items:baseline;gap:12px;padding:11px 0;font-size:14.5px}
+.detalhe-item + .detalhe-item{border-top:1px solid #EFE8E0}
+.detalhe-item b{flex:0 0 auto;font-weight:550}
+.detalhe-item .d-meta{
+  flex:1 1 auto;min-width:0;color:var(--ink-45);font-size:12.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.detalhe-item .d-valor{flex:0 0 auto;margin-left:auto;font-weight:650;font-variant-numeric:tabular-nums}
+.detalhe-total{display:flex;padding:14px 20px 2px;font-size:14.5px;font-weight:650}
+.detalhe-total span:last-child{margin-left:auto}
+
+.legenda-barras{display:flex;flex-wrap:wrap;gap:22px;font-size:13px;color:var(--ink-70)}
+.legenda-barras span{display:flex;align-items:center;gap:8px}
+.chip{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+
+/* ---------- dívidas ---------- */
+.divida-topo{display:flex;align-items:center;gap:18px;margin-bottom:26px}
+.inicial{
+  width:52px;height:52px;border-radius:999px;flex:0 0 auto;
+  display:grid;place-items:center;font-size:19px;font-weight:700;
+  background:var(--malva-suave);color:var(--malva-texto);
+}
+.divida-nome{display:block;font-size:19px;font-weight:650;letter-spacing:-.02em}
+.divida-sub{display:block;font-size:13.5px;color:var(--ink-45);margin-top:2px}
+.divida-saldo{margin-left:auto;text-align:right}
+.divida-saldo .v{display:block;font-size:30px;font-weight:750;letter-spacing:-.035em}
+.divida-saldo .r{display:block;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-45)}
+
+.progresso{height:10px;border-radius:999px;background:#F1EBE4;overflow:hidden;margin-bottom:9px}
+.progresso span{display:block;height:100%;background:var(--malva);border-radius:999px}
+.progresso-legenda{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-45)}
+
+.historico{list-style:none;margin-top:26px;border-top:1px solid var(--linha);padding-top:6px}
+.historico li{display:flex;align-items:center;gap:14px;padding:11px 0;font-size:14.5px}
+.historico li + li{border-top:1px solid var(--linha)}
+.historico .data{color:var(--ink-45);font-size:13px;width:78px;flex:0 0 auto}
+.historico .valor{margin-left:auto;font-weight:650}
+.historico li.item--previsto .valor{color:var(--previsto);font-weight:550}
+
+.duas{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:22px;margin-top:22px;align-items:start;
+}
+/* dentro da grid os cards são irmãos, então a margem de empilhamento não vale */
+.duas > .card + .card{margin-top:0}
+
+/* ---------- navegação inferior, celular ---------- */
+.nav-baixo{display:none}
+
+/* ---------- parcelamentos, cápsula no eixo de mês ----------
+   Uma forma por compra, com um corte por parcela. O peso é invertido de
+   propósito: o que já foi pago apaga para creme e o que ainda falta escurece,
+   porque a pergunta da tela é quantas faltam.
+   --cols é o total de meses do eixo, --hoje quantos já passaram. Cada cápsula
+   leva --ini, --dur e --pagas. */
+.gantt{
+  display:grid;align-items:center;
+  grid-template-columns:216px minmax(0,1fr) 52px;
+  gap:14px 18px;
+}
+.gantt-malha{
+  grid-column:2;grid-row:2 / -1;align-self:stretch;
+  background:repeating-linear-gradient(to right,
+    #F4EFE9 0 1px, transparent 1px calc(100% / var(--cols)));
+}
+.gantt-passado{
+  grid-column:2;grid-row:2 / -1;align-self:stretch;
+  width:calc(100% * var(--hoje) / var(--cols));
+  background:#FBF8F4;
+}
+.gantt-hoje{grid-column:2;grid-row:1 / -1;align-self:stretch;position:relative}
+.gantt-hoje::before{
+  content:"";position:absolute;top:0;bottom:0;
+  left:calc(100% * var(--hoje) / var(--cols));
+  width:2px;background:var(--ink-28);transform:translateX(-1px);border-radius:2px;
+}
+.gantt-eixo{grid-column:2;padding-bottom:2px}
+.gantt-anos{
+  display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));
+  font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--ink-28);
+  margin-bottom:5px;
+}
+.gantt-anos span{padding-left:3px}
+.gantt-meses{
+  display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));
+  font-size:11px;font-weight:600;color:var(--ink-45);text-align:center;
+}
+.gantt-meses .agora{color:var(--ink);font-weight:750}
+.gantt-nome{display:flex;align-items:center;gap:12px;min-width:0}
+.gantt-txt{min-width:0}
+.gantt-txt b{
+  display:block;font-size:14.5px;font-weight:600;letter-spacing:-.01em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.gantt-txt small{
+  display:block;font-size:12px;font-weight:500;color:var(--ink-45);margin-top:1px;
+  font-variant-numeric:tabular-nums;
+}
+.gantt-n{
+  font-size:22px;font-weight:750;text-align:right;letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;line-height:1;
+}
+.gantt-cab-n{
+  font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-45);text-align:right;align-self:end;padding-bottom:3px;
+}
+.gantt-pista{grid-column:2;position:relative;height:28px}
+.capsula{
+  position:absolute;top:0;bottom:0;
+  left:calc(100% * var(--ini) / var(--cols));
+  width:calc(100% * var(--dur) / var(--cols));
+  border-radius:999px;overflow:hidden;
+  background:repeating-linear-gradient(135deg,#6E655D 0 3px,#A79E95 3px 6px);
+}
+.capsula .paga{
+  position:absolute;left:0;top:0;bottom:0;
+  width:calc(100% * var(--pagas) / var(--dur));
+  background:#E7E1DA;
+}
+.capsula .cortes{
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(to right,
+    transparent 0 calc(100% / var(--dur) - 2px),
+    var(--branco) calc(100% / var(--dur) - 2px) calc(100% / var(--dur)));
+}
+
+/* ---------- telas menores ---------- */
+@media (max-width:960px){
+  .colunas,.duas{grid-template-columns:1fr}
+  /* em coluna única a lista volta a crescer sozinha, sem rolagem por dentro */
+  .coluna-lista{position:static;min-height:0}
+  .coluna-lista > .card{position:static;display:block}
+  .coluna-lista .lista{overflow:visible;-webkit-mask-image:none;mask-image:none}
+}
+
+@media (max-width:720px){
+  body{font-size:15px}
+  main{padding:0 16px 108px}
+  .topo{padding:16px 16px 0;gap:12px}
+  .nav-topo,.btn-novo{display:none}
+  .cabecalho{padding:26px 2px 20px}
+  .titulo{font-size:27px}
+  .tit-seletor button{width:30px;height:30px}
+  .tit-seletor svg{width:16px;height:16px}
+  .card{padding:22px 20px;border-radius:22px}
+  .gantt{grid-template-columns:118px minmax(0,1fr) 30px;gap:11px 10px}
+  .gantt-nome{gap:9px}
+  .gantt-txt b{font-size:12.5px}
+  .gantt-txt small{display:none}
+  .gantt-pista{height:22px}
+  .gantt-meses,.gantt-anos{font-size:9px}
+  .gantt-n{font-size:17px}
+
+  .tres{grid-template-columns:1fr;gap:0}
+  .stat{padding:18px 0}
+  .stat + .stat{padding-left:0;border-left:0;border-top:1px solid var(--linha)}
+  .stat:first-child{padding-top:0}
+  .stat-valor{font-size:33px}
+
+  .destaque{gap:20px}
+  .destaque-num{font-size:50px}
+  .item-meta{white-space:normal}
+  .mes-linha{padding:16px 12px}
+  .mes-topo{flex-wrap:wrap;gap:6px}
+  .mes-sobra{text-align:left}
+  .mes-sobra small{display:inline;text-transform:none;letter-spacing:0;font-size:13px;margin-right:6px}
+  .detalhe{padding:2px 12px 16px}
+  .detalhe-lista{padding:4px 14px}
+  .detalhe-item{flex-wrap:wrap;gap:4px 12px}
+  .detalhe-item .d-meta{order:3;flex:1 0 100%;white-space:normal}
+  .detalhe-item b{flex:1 1 auto}
+  .divida-saldo .v{font-size:25px}
+  .divida-topo{flex-wrap:wrap;gap:14px}
+  .divida-saldo{text-align:left;margin-left:0;flex:1 0 100%}
+
+  .nav-baixo{
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:rgba(255,253,252,.93);
+    -webkit-backdrop-filter:saturate(180%) blur(18px);
+    backdrop-filter:saturate(180%) blur(18px);
+    border-top:1px solid var(--linha);
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+  }
+  .nav-baixo button{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+    padding:6px 0;font-size:10.5px;font-weight:600;color:var(--ink-45);letter-spacing:-.005em;
+  }
+  .nav-baixo button svg{width:23px;height:23px}
+  .nav-baixo button[aria-current]{color:var(--malva-texto)}
+  .nav-baixo .novo .circulo{
+    width:34px;height:34px;border-radius:999px;background:var(--malva);
+    display:grid;place-items:center;
+  }
+  .nav-baixo .novo .circulo svg{width:19px;height:19px;color:#fff}
+  .nav-baixo .novo{color:var(--malva-texto)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ícones ------------------------------------------------------------- -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+ <symbol id="i-casa" viewBox="0 0 24 24"><path d="M3.5 10.6 12 3.8l8.5 6.8V20a.9.9 0 0 1-.9.9h-4.4v-6h-4.4v6H4.4a.9.9 0 0 1-.9-.9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+ <symbol id="i-barras" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 20V13M9.3 20V8M14.7 20v-9M20 20V5"/></g></symbol>
+ <symbol id="i-pessoas" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.2" r="3.2"/><path d="M3.2 20.2c0-3.2 2.6-5.4 5.8-5.4s5.8 2.2 5.8 5.4"/><path d="M16.4 5.4a3.2 3.2 0 0 1 .3 6.1M17.8 14.9c1.8.6 3 2.2 3 4.4"/></g></symbol>
+ <symbol id="i-mais" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></g></symbol>
+ <symbol id="i-esq" viewBox="0 0 24 24"><path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+ <symbol id="i-baixo" viewBox="0 0 24 24"><path d="M5 9.5 12 16l7-6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+ <symbol id="i-dir" viewBox="0 0 24 24"><path d="M9.5 5 16 12l-6.5 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+
+ <symbol id="i-moradia" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M3.5 10.4 12 4l8.5 6.4V20h-17z"/><path d="M9.6 20v-5.2h4.8V20"/></g></symbol>
+ <symbol id="i-mercado" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h2.3l2 9.4h9.6L19 8.6H6"/><circle cx="9" cy="19" r="1.4"/><circle cx="16.2" cy="19" r="1.4"/></g></symbol>
+ <symbol id="i-saude" viewBox="0 0 24 24"><path d="M12 20.2c-1.5-1-7.2-4.8-7.2-9.4A3.9 3.9 0 0 1 12 8.4a3.9 3.9 0 0 1 7.2 2.4c0 4.6-5.7 8.4-7.2 9.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+ <symbol id="i-pet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.6 11.4 4.6 5.2l4.6 2.6M18.4 11.4l1-6.2-4.6 2.6"/><path d="M12 20.4c-3.6 0-6.4-2.2-6.4-5.4S8.4 7.6 12 7.6s6.4 4.2 6.4 7.4-2.8 5.4-6.4 5.4z"/><path d="M10.2 13.4h.01M13.8 13.4h.01"/></g></symbol>
+ <symbol id="i-restaurantes" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5v5.2a2.1 2.1 0 0 0 4.2 0V3.5M9.1 10.9V20.5"/><path d="M17.4 3.5c-1.4 1.1-2.1 3-2.1 5s.7 3.1 2.1 3.1V20.5"/></g></symbol>
+ <symbol id="i-roupas" viewBox="0 0 24 24"><path d="M9.2 3.6 5.4 5.5 4.3 9.7l2.9.9V20.4h9.6V10.6l2.9-.9-1.1-4.2-3.8-1.9a2.9 2.9 0 0 1-5.6 0z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+ <symbol id="i-casaobj" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11.2V8.4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2.8"/><path d="M3.4 18.4v-4.6a2.1 2.1 0 0 1 4.2 0v1.8h8.8v-1.8a2.1 2.1 0 0 1 4.2 0v4.6z"/><path d="M5.8 18.4v1.9M18.2 18.4v1.9"/></g></symbol>
+ <symbol id="i-assinaturas" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.6 3.4 19.8 6.6l-3.2 3.2"/><path d="M19.8 6.6H8.6A4.6 4.6 0 0 0 4 11.2v1"/><path d="M7.4 20.6 4.2 17.4l3.2-3.2"/><path d="M4.2 17.4h11.2A4.6 4.6 0 0 0 20 12.8v-1"/></g></symbol>
+ <symbol id="i-transporte" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16.4v-3.2l1.9-4.6h12.2l1.9 4.6v3.2z"/><path d="M4 13.2h16"/><circle cx="7.6" cy="18.2" r="1.5"/><circle cx="16.4" cy="18.2" r="1.5"/></g></symbol>
+ <symbol id="i-presentes" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M4.6 11.4h14.8v9H4.6zM3.4 7.4h17.2v4H3.4zM12 7.4v13"/><path d="M12 7.4S9.8 3.4 7.9 4.3 8.3 7.4 12 7.4zM12 7.4s2.2-4 4.1-3.1S15.7 7.4 12 7.4z"/></g></symbol>
+ <symbol id="i-viagem" viewBox="0 0 24 24"><path d="M20.6 4.2 3.9 10.1l5.6 2.3 2.3 5.6z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+ <symbol id="i-dividas" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 8.6h14.2l-3.4-3.4M20.4 15.4H6.2l3.4 3.4"/></g></symbol>
+ <symbol id="i-impostos" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M6.2 3.4h7.4l4.2 4.2v13H6.2z"/><path d="M13.6 3.4v4.2h4.2M9.2 12.4h5.6M9.2 16h5.6"/></g></symbol>
+ <symbol id="i-reembolso" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 14.6 5 10.4l4.2-4.2"/><path d="M5 10.4h9.4a4.7 4.7 0 0 1 0 9.4h-3.2"/></g></symbol>
+</svg>
+
+<!-- onda de fundo, eco do logo ------------------------------------------ -->
+<div class="onda" aria-hidden="true">
+  <svg viewBox="0 0 1440 340" preserveAspectRatio="none">
+    <path d="M0 214C160 214 220 150 380 150s220 52 380 52 220-72 380-72 180 34 300 34v176H0z" fill="#B0779E" opacity=".055"/>
+    <path d="M0 262C170 262 210 206 400 206s230 44 400 44 230-58 380-58 110 20 260 20v128H0z" fill="#B0779E" opacity=".045"/>
+  </svg>
+</div>
+
+<!-- topo ---------------------------------------------------------------- -->
+<header class="topo">
+  <div class="marca">
+    <img src="../logo/sobra-wordmark.svg" alt="Sobra">
+  </div>
+
+  <nav class="nav-topo" aria-label="Seções">
+    <button data-ir="home" aria-current="true">este mês</button>
+    <button data-ir="proximos">próximos meses</button>
+    <button data-ir="dividas">dívidas</button>
+  </nav>
+
+  <div class="topo-fim">
+    <button class="btn-novo"><svg><use href="#i-mais"/></svg>novo lançamento</button>
+    <div class="avatar" aria-hidden="true">M</div>
+  </div>
+</header>
+
+<main>
+
+<!-- ===================== HOME ========================================== -->
+<section class="view ativa" id="home">
+
+  <div class="cabecalho">
+    <div class="tit-seletor">
+      <button aria-label="Mês anterior"><svg><use href="#i-esq"/></svg></button>
+      <h1 class="titulo">agosto <span class="ano">2026</span></h1>
+      <button aria-label="Próximo mês"><svg><use href="#i-dir"/></svg></button>
+    </div>
+  </div>
+
+  <!-- os três números -->
+  <section class="card">
+    <div class="renda-topo">
+      <p class="rot">renda prevista</p>
+      <div class="linha">
+        <span class="val num"><span class="cifrao">R$</span>8.240,00</span>
+        <span class="rec num">R$ 6.940,00 já recebido</span>
+      </div>
+    </div>
+
+    <div class="tres">
+      <div class="stat">
+        <p class="stat-rotulo"><i class="marca-confirmado"></i>confirmado</p>
+        <p class="stat-valor num"><span class="cifrao">R$</span>5.833,45</p>
+      </div>
+      <div class="stat">
+        <p class="stat-rotulo"><i class="marca-previsto"></i>previsto</p>
+        <p class="stat-valor previsto num"><span class="cifrao">R$</span>1.569,70</p>
+      </div>
+      <div class="stat">
+        <p class="stat-rotulo"><i class="marca-sobra"></i>sobra</p>
+        <p class="stat-valor positivo num"><span class="cifrao">R$</span>836,85</p>
+      </div>
+    </div>
+
+    <div class="medidor">
+      <div class="medidor-trilha" role="img"
+           aria-label="Da renda prevista de 8.240 reais, 70,8 por cento está confirmado, 19,1 por cento está previsto e 10,2 por cento sobra.">
+        <span class="seg-confirmado" style="width:70.79%"></span>
+        <span class="seg-previsto"   style="width:19.05%"></span>
+        <span class="seg-sobra"      style="width:10.16%"></span>
+      </div>
+      <div class="medidor-legenda">
+        <span><i class="marca-confirmado"></i>71%</span>
+        <span><i class="marca-previsto"></i>19%</span>
+        <span><i class="marca-sobra"></i>10%</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="colunas">
+
+    <!-- lançamentos -->
+    <div class="coluna coluna-lista">
+      <section class="card">
+                <div class="ab-titulo" role="tablist">
+          <button type="button" data-aba="confirmado" role="tab" aria-selected="true">lançamentos <span class="n num">33</span></button>
+          <button type="button" data-aba="previsto" role="tab" aria-selected="false">previsto <span class="n num">8</span></button>
+        </div>
+
+        <ul class="lista">
+          <li class="dia" data-tipo="confirmado">14 de agosto</li>
+          <li class="item" style="--cor:var(--c-pet)" data-tipo="confirmado">
+            <span class="bolha"><svg><use href="#i-pet"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">ração e areia do pet</span>
+              <span class="item-meta">cartão azul · pet</span>
+            </span>
+            <span class="item-valor num"><span class="rs">R$</span>129,90</span>
+          </li>
+          <li class="dia" data-tipo="confirmado">13 de agosto</li>
+          <li class="item" style="--cor:var(--c-saude)" data-tipo="confirmado">
+            <span class="bolha"><svg><use href="#i-saude"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">consulta</span>
+              <span class="item-meta">cartão azul · saúde</span>
+            </span>
+            <span class="item-valor num"><span class="rs">R$</span>289,00</span>
+          </li>
+          <li class="dia" data-tipo="confirmado">12 de agosto</li>
+          <li class="item" style="--cor:var(--c-saude)" data-tipo="confirmado">
+            <span class="bolha"><svg><use href="#i-saude"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">farmácia do joão<span class="tag tag-reembolso"><svg style="width:11px;height:11px"><use href="#i-reembolso"/></svg>joão</span></span>
+              <span class="item-meta">cartão roxo · saúde · não entra na sua conta</span>
+            </span>
+            <span class="item-valor num" style="color:var(--ink-28)"><span class="rs">R$</span>156,40</span>
+          </li>
+          <li class="item" style="--cor:var(--c-transporte)" data-tipo="confirmado">
+            <span class="bolha"><svg><use href="#i-transporte"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">combustível do joão<span class="tag tag-reembolso"><svg style="width:11px;height:11px"><use href="#i-reembolso"/></svg>joão</span></span>
+              <span class="item-meta">cartão roxo · transporte · não entra na sua conta</span>
+            </span>
+            <span class="item-valor num" style="color:var(--ink-28)"><span class="rs">R$</span>200,00</span>
+          </li>
+          <li class="dia" data-tipo="confirmado">11 de agosto</li>
+          <li class="item" style="--cor:var(--c-casa)" data-tipo="confirmado">
+            <span class="bolha"><svg><use href="#i-casaobj"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">notebook dell</span>
+              <span class="item-meta">cartão azul · casa e objetos · parcela 5 de 12</span>
+            </span>
+            <span class="item-valor num"><span class="rs">R$</span>390,00</span>
+          </li>
+          <li class="dia" data-tipo="confirmado">8 de agosto</li>
+          <li class="item" style="--cor:var(--c-mercado)" data-tipo="confirmado">
+            <span class="bolha"><svg><use href="#i-mercado"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">mercado da semana</span>
+              <span class="item-meta">cartão azul · mercado</span>
+            </span>
+            <span class="item-valor num"><span class="rs">R$</span>412,30</span>
+          </li>
+          <li class="item" style="--cor:var(--c-moradia)" data-tipo="confirmado">
+            <span class="bolha"><svg><use href="#i-moradia"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">conta de luz</span>
+              <span class="item-meta">cartão azul · moradia</span>
+            </span>
+            <span class="item-valor num"><span class="rs">R$</span>189,40</span>
+          </li>
+          <li class="item item--previsto" style="--cor:var(--c-dividas)" data-tipo="previsto">
+            <span class="bolha"><svg><use href="#i-dividas"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">pagamento para a ana</span>
+              <span class="item-meta">pix · dívidas</span>
+            </span>
+            <span class="item-valor num"><span class="rs">R$</span>400,00</span>
+          </li>
+          <li class="item item--previsto" style="--cor:var(--c-mercado)" data-tipo="previsto">
+            <span class="bolha"><svg><use href="#i-mercado"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">mercado do fim do mês</span>
+              <span class="item-meta">cartão azul · mercado · estimativa</span>
+            </span>
+            <span class="item-valor num"><span class="rs">R$</span>300,00</span>
+          </li>
+          <li class="item item--previsto" style="--cor:var(--c-transporte)" data-tipo="previsto">
+            <span class="bolha"><svg><use href="#i-transporte"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">gasolina</span>
+              <span class="item-meta">cartão azul · transporte</span>
+            </span>
+            <span class="item-valor num"><span class="rs">R$</span>220,00</span>
+          </li>
+          <li class="item item--previsto" style="--cor:var(--c-roupas)" data-tipo="previsto">
+            <span class="bolha"><svg><use href="#i-roupas"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">cabeleireiro</span>
+              <span class="item-meta">cartão azul · roupas e beleza</span>
+            </span>
+            <span class="item-valor num"><span class="rs">R$</span>180,00</span>
+          </li>
+          <li class="item item--previsto" style="--cor:var(--c-presentes)" data-tipo="previsto">
+            <span class="bolha"><svg><use href="#i-presentes"/></svg></span>
+            <span class="item-corpo">
+              <span class="item-desc">aniversário da bia</span>
+              <span class="item-meta">pix · presentes</span>
+            </span>
+            <span class="item-valor num"><span class="rs">R$</span>120,00</span>
+          </li>
+        </ul>
+
+        <a class="ver-tudo" href="#" id="ver-tudo-lista">ver mais</a>
+      </section>
+    </div>
+
+    <!-- coluna direita -->
+    <div class="coluna">
+
+      <section class="card">
+        <div class="card-cabecalho"><h2 class="card-titulo">por categoria</h2></div>
+
+                        <div class="cat" style="--cor:var(--c-moradia)">
+          <span class="cat-nome"><svg><use href="#i-moradia"/></svg>moradia</span>
+          <span class="cat-barra"><span style="width:100%"></span></span>
+          <span class="cat-pct num">30%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>2.239,90</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-saude)">
+          <span class="cat-nome"><svg><use href="#i-saude"/></svg>saúde</span>
+          <span class="cat-barra"><span style="width:50.4%"></span></span>
+          <span class="cat-pct num">15%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>1.128,00</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-mercado)">
+          <span class="cat-nome"><svg><use href="#i-mercado"/></svg>mercado</span>
+          <span class="cat-barra"><span style="width:43.7%"></span></span>
+          <span class="cat-pct num">13%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>977,95</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-casa)">
+          <span class="cat-nome"><svg><use href="#i-casaobj"/></svg>casa e objetos</span>
+          <span class="cat-barra"><span style="width:33.9%"></span></span>
+          <span class="cat-pct num">10%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>759,20</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-transporte)">
+          <span class="cat-nome"><svg><use href="#i-transporte"/></svg>transporte</span>
+          <span class="cat-barra"><span style="width:18.2%"></span></span>
+          <span class="cat-pct num">5,5%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>407,40</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-dividas)">
+          <span class="cat-nome"><svg><use href="#i-dividas"/></svg>dívidas</span>
+          <span class="cat-barra"><span style="width:17.9%"></span></span>
+          <span class="cat-pct num">5,4%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>400,00</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-restaurantes)">
+          <span class="cat-nome"><svg><use href="#i-restaurantes"/></svg>restaurantes</span>
+          <span class="cat-barra"><span style="width:15.0%"></span></span>
+          <span class="cat-pct num">4,5%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>335,70</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-viagem)">
+          <span class="cat-nome"><svg><use href="#i-viagem"/></svg>viagem</span>
+          <span class="cat-barra"><span style="width:14.1%"></span></span>
+          <span class="cat-pct num">4,3%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>315,00</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-roupas)">
+          <span class="cat-nome"><svg><use href="#i-roupas"/></svg>roupas e beleza</span>
+          <span class="cat-barra"><span style="width:12.0%"></span></span>
+          <span class="cat-pct num">3,6%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>269,90</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-pet)">
+          <span class="cat-nome"><svg><use href="#i-pet"/></svg>pet</span>
+          <span class="cat-barra"><span style="width:11.2%"></span></span>
+          <span class="cat-pct num">3,4%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>249,90</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-assinaturas)">
+          <span class="cat-nome"><svg><use href="#i-assinaturas"/></svg>assinaturas</span>
+          <span class="cat-barra"><span style="width:5.5%"></span></span>
+          <span class="cat-pct num">1,7%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>123,60</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-presentes)">
+          <span class="cat-nome"><svg><use href="#i-presentes"/></svg>presentes</span>
+          <span class="cat-barra"><span style="width:5.4%"></span></span>
+          <span class="cat-pct num">1,6%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>120,00</span>
+        </div>
+        <div class="cat" style="--cor:var(--c-impostos)">
+          <span class="cat-nome"><svg><use href="#i-impostos"/></svg>impostos</span>
+          <span class="cat-barra"><span style="width:3.4%"></span></span>
+          <span class="cat-pct num">1,0%</span>
+          <span class="cat-valor num"><span class="rs">R$</span>76,60</span>
+        </div>
+
+        </section>
+
+      <section class="card">
+        <div class="card-cabecalho"><h2 class="card-titulo">a receber de volta</h2></div>
+
+        <div class="reemb">
+          <span class="inicial" style="width:42px;height:42px;font-size:16px">J</span>
+          <span>
+            <span style="display:block;font-weight:600">joão</span>
+            <span style="display:block;font-size:12.5px;color:var(--ink-45)">3 lançamentos no cartão roxo</span>
+          </span>
+          <span class="reemb-valor num">R$ 401,30</span>
+        </div>
+
+        <p class="rodape-card">
+          fatura do cartão roxo em agosto: R$ 549,90.<br>
+          R$ 401,30 são do joão e R$ 148,60 são seus.
+        </p>
+      </section>
+
+    </div>
+
+    <!-- parcelamentos, ocupando as duas colunas -->
+    <section class="card faixa-cheia">
+      <div class="card-cabecalho"><h2 class="card-titulo">parcelamentos em andamento</h2></div>
+
+      <div class="gantt" style="--cols:13;--hoje:6">
+        <span class="gantt-malha"></span>
+        <span class="gantt-passado"></span>
+        <span class="gantt-hoje"></span>
+
+        <span></span>
+        <div class="gantt-eixo">
+          <div class="gantt-anos">
+            <span style="grid-column:1 / 11">2026</span>
+            <span style="grid-column:11 / 14">2027</span>
+          </div>
+          <div class="gantt-meses">
+            <span>mar</span><span>abr</span><span>mai</span><span>jun</span>
+            <span>jul</span><span class="agora">ago</span><span>set</span><span>out</span>
+            <span>nov</span><span>dez</span><span>jan</span><span>fev</span>
+            <span>mar</span>
+          </div>
+        </div>
+        <span class="gantt-cab-n">faltam</span>
+
+        <span class="gantt-nome" style="--cor:var(--c-casa)">
+          <span class="bolha"><svg><use href="#i-casaobj"/></svg></span>
+          <span class="gantt-txt"><b>sofá</b><small>8x de R$ 345,00</small></span>
+        </span>
+        <div class="gantt-pista">
+          <div class="capsula" style="--ini:0;--dur:8;--pagas:6"
+               role="img" aria-label="Sofá, 6 parcelas pagas de 8, faltam 2, a última em outubro de 2026.">
+            <span class="paga"></span><span class="cortes"></span>
+          </div>
+        </div>
+        <span class="gantt-n num">2</span>
+        <span class="gantt-nome" style="--cor:var(--c-saude)">
+          <span class="bolha"><svg><use href="#i-saude"/></svg></span>
+          <span class="gantt-txt"><b>dentista</b><small>6x de R$ 400,00</small></span>
+        </span>
+        <div class="gantt-pista">
+          <div class="capsula" style="--ini:3;--dur:6;--pagas:3"
+               role="img" aria-label="Dentista, 3 parcelas pagas de 6, faltam 3, a última em novembro de 2026.">
+            <span class="paga"></span><span class="cortes"></span>
+          </div>
+        </div>
+        <span class="gantt-n num">3</span>
+        <span class="gantt-nome" style="--cor:var(--c-viagem)">
+          <span class="bolha"><svg><use href="#i-viagem"/></svg></span>
+          <span class="gantt-txt"><b>passagem para salvador</b><small>6x de R$ 315,00</small></span>
+        </span>
+        <div class="gantt-pista">
+          <div class="capsula" style="--ini:4;--dur:6;--pagas:2"
+               role="img" aria-label="Passagem para Salvador, 2 parcelas pagas de 6, faltam 4, a última em dezembro de 2026.">
+            <span class="paga"></span><span class="cortes"></span>
+          </div>
+        </div>
+        <span class="gantt-n num">4</span>
+        <span class="gantt-nome" style="--cor:var(--c-casa)">
+          <span class="bolha"><svg><use href="#i-casaobj"/></svg></span>
+          <span class="gantt-txt"><b>notebook dell</b><small>12x de R$ 390,00</small></span>
+        </span>
+        <div class="gantt-pista">
+          <div class="capsula" style="--ini:1;--dur:12;--pagas:5"
+               role="img" aria-label="Notebook Dell, 5 parcelas pagas de 12, faltam 7, a última em março de 2027.">
+            <span class="paga"></span><span class="cortes"></span>
+          </div>
+        </div>
+        <span class="gantt-n num">7</span>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ===================== PRÓXIMOS MESES ================================ -->
+<section class="view" id="proximos">
+
+  <div class="cabecalho">
+    <div>
+      <h1 class="titulo">próximos seis meses</h1>
+      <p class="subtitulo">quanto de cada mês já está comprometido antes de ele começar.</p>
+    </div>
+  </div>
+
+  <section class="card">
+    <div class="destaque">
+      <div>
+        <p class="stat-rotulo">outubro de 2026</p>
+        <p class="destaque-num num" style="margin-top:10px">65%</p>
+      </div>
+      <p class="destaque-txt">
+        já está comprometido. são <strong>R$ 4.503,10</strong> de recorrentes, parcelas
+        e contas programadas, contra uma renda prevista de <strong>R$ 6.940,00</strong>.
+      </p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-cabecalho">
+      <div>
+        <h2 class="card-titulo">setembro de 2026 a fevereiro de 2027</h2>
+        <p class="card-nota">cada barra é a renda prevista do mês. toque em um mês para abrir a composição.</p>
+      </div>
+    </div>
+
+    <div class="legenda-barras" style="margin-bottom:22px">
+      <span><i class="chip seg-recorrente"></i>recorrentes</span>
+      <span><i class="chip seg-parcela"></i>parcelas em aberto</span>
+      <span><i class="chip seg-programado"></i>contas programadas</span>
+      <span style="color:var(--ink-45)"><i class="chip" style="background:#F1EBE4"></i>ainda livre</span>
+    </div>
+
+    <div class="meses">
+
+      <!-- setembro -->
+      <button class="mes-linha" data-mes="set" aria-expanded="false" aria-controls="d-set">
+        <span class="mes-topo">
+          <span class="mes-nome">setembro 2026 <span class="mes-pct">65% comprometido</span><svg class="mes-seta"><use href="#i-baixo"/></svg></span>
+          <span class="mes-sobra"><small>sobra prevista</small><span class="num">R$ 2.436,90</span></span>
+        </span>
+        <span class="mes-trilha">
+          <span class="seg-recorrente" style="width:38.23%"></span>
+          <span class="seg-parcela"    style="width:20.89%"></span>
+          <span class="seg-programado" style="width:5.76%"></span>
+        </span>
+      </button>
+      <div class="detalhe" id="d-set">
+        <ul class="detalhe-lista">
+          <li class="detalhe-item"><b>recorrentes</b><span class="d-meta">8 lançamentos, entre aluguel, contas de casa, assinaturas e DAS</span><span class="d-valor"><span class="rs">R$</span>2.653,10</span></li>
+          <li class="detalhe-item"><b>notebook dell</b><span class="d-meta">parcela 6 de 12, última em março de 2027</span><span class="d-valor"><span class="rs">R$</span>390,00</span></li>
+          <li class="detalhe-item"><b>dentista</b><span class="d-meta">parcela 4 de 6</span><span class="d-valor"><span class="rs">R$</span>400,00</span></li>
+          <li class="detalhe-item"><b>sofá</b><span class="d-meta">parcela 7 de 8</span><span class="d-valor"><span class="rs">R$</span>345,00</span></li>
+          <li class="detalhe-item"><b>passagem para salvador</b><span class="d-meta">parcela 3 de 6</span><span class="d-valor"><span class="rs">R$</span>315,00</span></li>
+          <li class="detalhe-item"><b>pagamento para a ana</b><span class="d-meta">programado, dívidas</span><span class="d-valor"><span class="rs">R$</span>400,00</span></li>
+        </ul>
+        <div class="detalhe-total"><span>comprometido em setembro</span><span class="num">R$ 4.503,10</span></div>
+      </div>
+
+      <!-- outubro -->
+      <button class="mes-linha" data-mes="out" aria-expanded="false" aria-controls="d-out">
+        <span class="mes-topo">
+          <span class="mes-nome">outubro 2026 <span class="mes-pct">65% comprometido</span><svg class="mes-seta"><use href="#i-baixo"/></svg></span>
+          <span class="mes-sobra"><small>sobra prevista</small><span class="num">R$ 2.436,90</span></span>
+        </span>
+        <span class="mes-trilha">
+          <span class="seg-recorrente" style="width:38.23%"></span>
+          <span class="seg-parcela"    style="width:20.89%"></span>
+          <span class="seg-programado" style="width:5.76%"></span>
+        </span>
+      </button>
+      <div class="detalhe" id="d-out">
+        <ul class="detalhe-lista">
+          <li class="detalhe-item"><b>recorrentes</b><span class="d-meta">8 lançamentos</span><span class="d-valor"><span class="rs">R$</span>2.653,10</span></li>
+          <li class="detalhe-item"><b>notebook dell</b><span class="d-meta">parcela 7 de 12</span><span class="d-valor"><span class="rs">R$</span>390,00</span></li>
+          <li class="detalhe-item"><b>dentista</b><span class="d-meta">parcela 5 de 6</span><span class="d-valor"><span class="rs">R$</span>400,00</span></li>
+          <li class="detalhe-item"><b>sofá</b><span class="d-meta">parcela 8 de 8, última</span><span class="d-valor"><span class="rs">R$</span>345,00</span></li>
+          <li class="detalhe-item"><b>passagem para salvador</b><span class="d-meta">parcela 4 de 6</span><span class="d-valor"><span class="rs">R$</span>315,00</span></li>
+          <li class="detalhe-item"><b>pagamento para a ana</b><span class="d-meta">programado, dívidas</span><span class="d-valor"><span class="rs">R$</span>400,00</span></li>
+        </ul>
+        <div class="detalhe-total"><span>comprometido em outubro</span><span class="num">R$ 4.503,10</span></div>
+      </div>
+
+      <!-- novembro -->
+      <button class="mes-linha" data-mes="nov" aria-expanded="false" aria-controls="d-nov">
+        <span class="mes-topo">
+          <span class="mes-nome">novembro 2026 <span class="mes-pct">60% comprometido</span><svg class="mes-seta"><use href="#i-baixo"/></svg></span>
+          <span class="mes-sobra"><small>sobra prevista</small><span class="num">R$ 2.781,90</span></span>
+        </span>
+        <span class="mes-trilha">
+          <span class="seg-recorrente" style="width:38.23%"></span>
+          <span class="seg-parcela"    style="width:15.92%"></span>
+          <span class="seg-programado" style="width:5.76%"></span>
+        </span>
+      </button>
+      <div class="detalhe" id="d-nov">
+        <ul class="detalhe-lista">
+          <li class="detalhe-item"><b>recorrentes</b><span class="d-meta">8 lançamentos</span><span class="d-valor"><span class="rs">R$</span>2.653,10</span></li>
+          <li class="detalhe-item"><b>notebook dell</b><span class="d-meta">parcela 8 de 12</span><span class="d-valor"><span class="rs">R$</span>390,00</span></li>
+          <li class="detalhe-item"><b>dentista</b><span class="d-meta">parcela 6 de 6, última</span><span class="d-valor"><span class="rs">R$</span>400,00</span></li>
+          <li class="detalhe-item"><b>passagem para salvador</b><span class="d-meta">parcela 5 de 6</span><span class="d-valor"><span class="rs">R$</span>315,00</span></li>
+          <li class="detalhe-item"><b>pagamento para a ana</b><span class="d-meta">programado, dívidas</span><span class="d-valor"><span class="rs">R$</span>400,00</span></li>
+        </ul>
+        <div class="detalhe-total"><span>comprometido em novembro</span><span class="num">R$ 4.158,10</span></div>
+      </div>
+
+      <!-- dezembro -->
+      <button class="mes-linha" data-mes="dez" aria-expanded="false" aria-controls="d-dez">
+        <span class="mes-topo">
+          <span class="mes-nome">dezembro 2026 <span class="mes-pct">63% comprometido</span><svg class="mes-seta"><use href="#i-baixo"/></svg></span>
+          <span class="mes-sobra"><small>sobra prevista</small><span class="num">R$ 2.581,90</span></span>
+        </span>
+        <span class="mes-trilha">
+          <span class="seg-recorrente" style="width:38.23%"></span>
+          <span class="seg-parcela"    style="width:10.16%"></span>
+          <span class="seg-programado" style="width:14.41%"></span>
+        </span>
+      </button>
+      <div class="detalhe" id="d-dez">
+        <ul class="detalhe-lista">
+          <li class="detalhe-item"><b>recorrentes</b><span class="d-meta">8 lançamentos</span><span class="d-valor"><span class="rs">R$</span>2.653,10</span></li>
+          <li class="detalhe-item"><b>notebook dell</b><span class="d-meta">parcela 9 de 12</span><span class="d-valor"><span class="rs">R$</span>390,00</span></li>
+          <li class="detalhe-item"><b>passagem para salvador</b><span class="d-meta">parcela 6 de 6, última</span><span class="d-valor"><span class="rs">R$</span>315,00</span></li>
+          <li class="detalhe-item"><b>pagamento para a ana</b><span class="d-meta">programado, quita a dívida</span><span class="d-valor"><span class="rs">R$</span>400,00</span></li>
+          <li class="detalhe-item"><b>presentes de natal</b><span class="d-meta">programado, estimativa</span><span class="d-valor"><span class="rs">R$</span>600,00</span></li>
+        </ul>
+        <div class="detalhe-total"><span>comprometido em dezembro</span><span class="num">R$ 4.358,10</span></div>
+      </div>
+
+      <!-- janeiro -->
+      <button class="mes-linha" data-mes="jan" aria-expanded="false" aria-controls="d-jan">
+        <span class="mes-topo">
+          <span class="mes-nome">janeiro 2027 <span class="mes-pct">54% comprometido</span><svg class="mes-seta"><use href="#i-baixo"/></svg></span>
+          <span class="mes-sobra"><small>sobra prevista</small><span class="num">R$ 3.166,90</span></span>
+        </span>
+        <span class="mes-trilha">
+          <span class="seg-recorrente" style="width:38.23%"></span>
+          <span class="seg-parcela"    style="width:5.62%"></span>
+          <span class="seg-programado" style="width:10.52%"></span>
+        </span>
+      </button>
+      <div class="detalhe" id="d-jan">
+        <ul class="detalhe-lista">
+          <li class="detalhe-item"><b>recorrentes</b><span class="d-meta">8 lançamentos</span><span class="d-valor"><span class="rs">R$</span>2.653,10</span></li>
+          <li class="detalhe-item"><b>notebook dell</b><span class="d-meta">parcela 10 de 12</span><span class="d-valor"><span class="rs">R$</span>390,00</span></li>
+          <li class="detalhe-item"><b>IPVA</b><span class="d-meta">parcela 1 de 2, impostos</span><span class="d-valor"><span class="rs">R$</span>410,00</span></li>
+          <li class="detalhe-item"><b>IPTU</b><span class="d-meta">parcela 1 de 2, impostos</span><span class="d-valor"><span class="rs">R$</span>320,00</span></li>
+        </ul>
+        <div class="detalhe-total"><span>comprometido em janeiro</span><span class="num">R$ 3.773,10</span></div>
+      </div>
+
+      <!-- fevereiro -->
+      <button class="mes-linha" data-mes="fev" aria-expanded="false" aria-controls="d-fev">
+        <span class="mes-topo">
+          <span class="mes-nome">fevereiro 2027 <span class="mes-pct">54% comprometido</span><svg class="mes-seta"><use href="#i-baixo"/></svg></span>
+          <span class="mes-sobra"><small>sobra prevista</small><span class="num">R$ 3.166,90</span></span>
+        </span>
+        <span class="mes-trilha">
+          <span class="seg-recorrente" style="width:38.23%"></span>
+          <span class="seg-parcela"    style="width:5.62%"></span>
+          <span class="seg-programado" style="width:10.52%"></span>
+        </span>
+      </button>
+      <div class="detalhe" id="d-fev">
+        <ul class="detalhe-lista">
+          <li class="detalhe-item"><b>recorrentes</b><span class="d-meta">8 lançamentos</span><span class="d-valor"><span class="rs">R$</span>2.653,10</span></li>
+          <li class="detalhe-item"><b>notebook dell</b><span class="d-meta">parcela 11 de 12</span><span class="d-valor"><span class="rs">R$</span>390,00</span></li>
+          <li class="detalhe-item"><b>IPVA</b><span class="d-meta">parcela 2 de 2, última</span><span class="d-valor"><span class="rs">R$</span>410,00</span></li>
+          <li class="detalhe-item"><b>IPTU</b><span class="d-meta">parcela 2 de 2, última</span><span class="d-valor"><span class="rs">R$</span>320,00</span></li>
+        </ul>
+        <div class="detalhe-total"><span>comprometido em fevereiro</span><span class="num">R$ 3.773,10</span></div>
+      </div>
+
+    </div>
+
+    <p class="rodape-card">
+      a sobra prevista ainda não desconta os gastos variáveis do dia a dia.
+      em agosto, mercado, transporte e restaurantes somaram R$ 1.721,05.
+    </p>
+  </section>
+</section>
+
+<!-- ===================== DÍVIDAS ======================================= -->
+<section class="view" id="dividas">
+
+  <div class="cabecalho">
+    <div>
+      <h1 class="titulo">dívidas</h1>
+      <p class="subtitulo">o que você pegou emprestado de pessoas, e o saldo caindo a cada pagamento.</p>
+    </div>
+  </div>
+
+  <section class="card">
+    <div class="tres">
+      <div class="stat">
+        <p class="stat-rotulo">você deve</p>
+        <p class="stat-valor num"><span class="cifrao">R$</span>2.900,00</p>
+        <p class="stat-nota">para 2 pessoas</p>
+      </div>
+      <div class="stat">
+        <p class="stat-rotulo">já pago</p>
+        <p class="stat-valor num" style="color:var(--ink-70)"><span class="cifrao">R$</span>2.300,00</p>
+        <p class="stat-nota">de R$ 5.200,00 emprestados</p>
+      </div>
+      <div class="stat">
+        <p class="stat-rotulo">próxima quitação</p>
+        <p class="stat-valor" style="font-size:32px">dezembro</p>
+        <p class="stat-nota">a dívida com a ana fecha em 2026</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="duas">
+
+    <section class="card">
+      <div class="divida-topo">
+        <span class="inicial">A</span>
+        <span>
+          <span class="divida-nome">ana</span>
+          <span class="divida-sub">emprestado em fevereiro de 2026</span>
+        </span>
+        <span class="divida-saldo">
+          <span class="r">saldo</span>
+          <span class="v num">R$ 2.000,00</span>
+        </span>
+      </div>
+
+      <div class="progresso"><span style="width:50%"></span></div>
+      <div class="progresso-legenda">
+        <span>R$ 2.000,00 pagos de R$ 4.000,00</span>
+        <span>50%</span>
+      </div>
+
+      <ul class="historico">
+        <li class="item--previsto">
+          <span class="data">20/08</span>
+          <span>pagamento programado <span class="tag tag-previsto">previsto</span></span>
+          <span class="valor num"><span class="rs">R$</span>400,00</span>
+        </li>
+        <li><span class="data">10/07</span><span>pix</span><span class="valor num"><span class="rs">R$</span>400,00</span></li>
+        <li><span class="data">10/06</span><span>pix</span><span class="valor num"><span class="rs">R$</span>400,00</span></li>
+        <li><span class="data">12/05</span><span>pix</span><span class="valor num"><span class="rs">R$</span>400,00</span></li>
+        <li><span class="data">10/04</span><span>pix</span><span class="valor num"><span class="rs">R$</span>400,00</span></li>
+        <li><span class="data">10/03</span><span>pix</span><span class="valor num"><span class="rs">R$</span>400,00</span></li>
+      </ul>
+
+      <p class="rodape-card">
+        mantendo R$ 400,00 por mês, quita em dezembro de 2026.
+      </p>
+    </section>
+
+    <section class="card">
+      <div class="divida-topo">
+        <span class="inicial">B</span>
+        <span>
+          <span class="divida-nome">bia</span>
+          <span class="divida-sub">emprestado em junho de 2026</span>
+        </span>
+        <span class="divida-saldo">
+          <span class="r">saldo</span>
+          <span class="v num">R$ 900,00</span>
+        </span>
+      </div>
+
+      <div class="progresso"><span style="width:25%"></span></div>
+      <div class="progresso-legenda">
+        <span>R$ 300,00 pagos de R$ 1.200,00</span>
+        <span>25%</span>
+      </div>
+
+      <ul class="historico">
+        <li><span class="data">15/07</span><span>pix</span><span class="valor num"><span class="rs">R$</span>300,00</span></li>
+      </ul>
+
+      <p class="rodape-card">
+        sem pagamento programado. nenhuma parcela desta dívida aparece nos próximos meses.
+      </p>
+    </section>
+
+  </div>
+
+  <section class="card">
+    <p style="font-size:14.5px;color:var(--ink-70);line-height:1.6">
+      cada pagamento vira um lançamento avulso na categoria dívidas, com a data em que
+      o dinheiro sai. por isso ele aparece na home de agosto e também aqui.
+      o saldo desta tela é sempre a soma dos pagamentos subtraída do valor emprestado,
+      nunca um número digitado à mão.
+    </p>
+  </section>
+</section>
+
+</main>
+
+<!-- navegação inferior, celular ----------------------------------------- -->
+<nav class="nav-baixo" aria-label="Seções">
+  <button data-ir="home" aria-current="true"><svg><use href="#i-casa"/></svg>este mês</button>
+  <button data-ir="proximos"><svg><use href="#i-barras"/></svg>próximos</button>
+  <button data-ir="dividas"><svg><use href="#i-pessoas"/></svg>dívidas</button>
+  <button class="novo"><span class="circulo"><svg><use href="#i-mais"/></svg></span>novo</button>
+</nav>
+
+<script>
+/* Mockup estático. O único comportamento aqui é trocar de tela e abrir
+   a composição de um mês. Nenhum dado é calculado, tudo está no HTML. */
+(function () {
+  var telas = document.querySelectorAll('.view');
+  var botoes = document.querySelectorAll('[data-ir]');
+
+  function ir(destino) {
+    telas.forEach(function (t) { t.classList.toggle('ativa', t.id === destino); });
+    botoes.forEach(function (b) {
+      if (b.dataset.ir === destino) { b.setAttribute("aria-current", "true"); }
+      else { b.removeAttribute('aria-current'); }
+    });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  botoes.forEach(function (b) {
+    b.addEventListener('click', function () { ir(b.dataset.ir); });
+  });
+
+  document.querySelectorAll('.mes-linha').forEach(function (linha) {
+    linha.addEventListener('click', function () {
+      var painel = document.getElementById(linha.getAttribute('aria-controls'));
+      var abrindo = linha.getAttribute('aria-expanded') === 'false';
+
+      document.querySelectorAll('.mes-linha').forEach(function (o) { o.setAttribute('aria-expanded', 'false'); });
+      document.querySelectorAll('.detalhe').forEach(function (o) { o.classList.remove('ativa'); });
+
+      if (abrindo) {
+        linha.setAttribute('aria-expanded', 'true');
+        painel.classList.add('ativa');
+      }
+    });
+  });
+
+  /* Abas do card de lançamentos. Confirmado vem agrupado por dia. Previsto não
+     mostra dia nenhum, porque previsto é do mês e o mês já está no topo. */
+  (function () {
+    var abas = document.querySelectorAll('.ab-titulo button');
+    if (!abas.length) return;
+    var lista = document.querySelector('#home .lista');
+    var verTudo = document.getElementById('ver-tudo-lista');
+
+
+    function aplicar(tipo) {
+      lista.querySelectorAll('li:not(.dia)').forEach(function (li) {
+        li.hidden = li.dataset.tipo !== tipo;
+      });
+      lista.querySelectorAll('li.dia').forEach(function (cab) {
+        cab.hidden = tipo === 'previsto';
+      });
+    }
+
+    abas.forEach(function (b) {
+      b.addEventListener('click', function () {
+        abas.forEach(function (o) { o.setAttribute('aria-selected', String(o === b)); });
+        aplicar(b.dataset.aba);
+      });
+    });
+
+    aplicar('confirmado');
+  })();
+})();
+</script>
+</body>
+</html>
