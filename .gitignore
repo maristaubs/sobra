@@ -1,0 +1,70 @@
+# -----------------------------------------------------------------------------
+# Sobra. Repositório público, então esta lista é a primeira linha de defesa.
+# Regra: nada de segredo e nada de dado real aqui dentro.
+# -----------------------------------------------------------------------------
+
+# --- segredos ----------------------------------------------------------------
+# Pega .env, .env.local, .env.production e qualquer variante. O .example fica,
+# porque ele só tem os nomes das variáveis, nunca os valores.
+.env
+.env.*
+!.env.example
+
+# Segredo de Worker gravado em arquivo. O certo é `wrangler secret put`, mas
+# se alguém gerar o arquivo por engano, ele não sai daqui.
+.dev.vars
+.dev.vars.*
+wrangler.toml.local
+
+# Chave, certificado e credencial de serviço, em qualquer formato.
+*.pem
+*.key
+*.p12
+*.pfx
+service-account*.json
+credentials*.json
+
+# --- dado real ---------------------------------------------------------------
+# Export do banco, backup e planilha nunca entram. O dado real mora no Supabase.
+*.dump
+*.sqlite
+*.sqlite3
+supabase/.temp/
+supabase/.branches/
+/dados-reais/
+/exports/
+*.csv
+*.xlsx
+# A exceção é fixture declaradamente falsa, e ela é sempre versionada de propósito.
+!supabase/seed/*.csv
+
+# --- local, não faz parte do produto -----------------------------------------
+# Configuração de ferramenta local. As convenções versionadas estão em
+# docs/CONVENTIONS.md, e este arquivo só aponta para lá.
+CLAUDE.md
+# Explorações de design. Serviram para decidir, e a decisão está nas ADRs.
+/mockup/estudos/
+
+# --- material de terceiros ---------------------------------------------------
+# Referência visual salva da internet é trabalho de outra pessoa. Fica no
+# computador para consulta e nunca é republicada aqui.
+/refs/
+
+# --- build e dependência -----------------------------------------------------
+node_modules/
+dist/
+.vite/
+.wrangler/
+*.tsbuildinfo
+
+# --- sistema e editor --------------------------------------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# --- log ---------------------------------------------------------------------
+npm-debug.log*
+yarn-error.log*
+*.log
