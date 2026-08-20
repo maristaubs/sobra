@@ -207,9 +207,13 @@ Regras fixas do prompt:
 - Faltando informação, pergunta. Nunca chuta. A data é a única exceção, porque
   ela tem um padrão que acerta quase sempre.
 
-Sempre responde com o que entendeu e pede confirmação antes de gravar, e a data
-de saída aparece escrita nessa confirmação sempre que existe cartão, porque ela é
-a informação que a pessoa não consegue calcular de cabeça. Para
+Sempre responde com o que entendeu e pede confirmação antes de gravar. Havendo
+cartão, essa confirmação diz **em que mês o pagamento cai**, porque é a única
+coisa que ela não consegue calcular de cabeça, e é sempre `pagamento neste mês`
+ou `pagamento no próximo mês`. Dia nenhum aparece escrito ali: o dia é sempre o
+mesmo, o mês é o que muda. A conta é contra o mês de hoje e não o mês da compra,
+senão um lançamento retroativo lê ao contrário. Caindo mais de um mês à frente,
+o mês vai escrito por extenso, como `pagamento em dezembro`. Para
 confirmar um previsto, procura entre os previstos abertos do mês e, havendo
 ambiguidade, lista as opções com botão.
 

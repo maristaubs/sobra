@@ -766,7 +766,7 @@ regra.
 
 **A pergunta não é uma pergunta, é um botão na confirmação que já existe.** O bot
 já responde com o que entendeu e espera confirmação antes de gravar. No dia do
-fechamento, essa mesma resposta carrega a data de saída calculada e um botão
+fechamento, essa mesma resposta carrega o mês do pagamento e um botão
 `ainda não fechou`. Nenhuma volta a mais na conversa, e nenhuma pergunta no
 caminho normal.
 
