@@ -88,7 +88,9 @@ Uma linha por mês. Guarda dois momentos diferentes de propósito:
 - `reference_month`: quando o gasto aconteceu, sempre dia 1 do mês. É por aqui que
   o gráfico de categorias agrupa.
 - `due_date`: quando o dinheiro sai. É por aqui que a home e os próximos meses
-  agrupam.
+  agrupam. `due_day_exact` diz se o dia dessa data foi decidido por alguém ou
+  pelo cartão. Quando é `false`, só o mês vale, e a data guardada é o último dia
+  dele. Ver [ADR 0015](DECISIONS.md).
 
 A interface nunca oferece um botão de trocar entre um e outro. A home é sempre por
 `due_date`, e só o gráfico de categorias usa `reference_month`, com o rótulo
@@ -199,6 +201,9 @@ create table public.installments (
   reference_month date not null check (extract(day from reference_month) = 1),
   -- quando o dinheiro sai
   due_date        date not null,
+  -- false quer dizer que só o mês de due_date é confiável, o dia é enchimento.
+  -- Acontece em previsto lançado sem dia. Ver ADR 0015.
+  due_day_exact   boolean not null default true,
   status          installment_status not null default 'previsto',
   confirmed_at    timestamptz,
   created_at      timestamptz not null default now(),
@@ -295,6 +300,14 @@ end $$;
 -- diretamente, senão a garantia de "N linhas, uma por mês" deixa de valer.
 -- ---------------------------------------------------------------------------
 
+-- O hoje dela, não o hoje do servidor. O Worker roda na Cloudflare e o Postgres
+-- responde em UTC, e o cartão fecha num dia baixo do mês, então uma mensagem da
+-- noite do dia 1 viraria dia 2 e deslocaria a fatura em um mês. Ver ADR 0015.
+create or replace function public.sobra_today() returns date
+language sql stable as $$
+  select (now() at time zone 'America/Sao_Paulo')::date;
+$$;
+
 -- Quantos meses a fatura anda em relação ao mês da compra. Vale 0, 1 ou 2:
 -- +1 quando a compra é no dia do fechamento ou depois dele,
 -- +1 quando o cartão vence antes do dia em que fecha.
@@ -333,10 +346,14 @@ $$;
 create or replace function public.sobra_due_date(
   p_card_id  uuid,
   p_month    date,
-  p_fallback date
+  p_fallback date,
+  p_exact    boolean default true
 ) returns date
 language sql stable as $$
   select case
+    -- dia desconhecido: guarda o último dia do mês. Ver ADR 0015.
+    when not p_exact
+      then (date_trunc('month', p_month) + interval '1 month' - interval '1 day')::date
     when p_card_id is null then p_fallback
     else coalesce((
       select p_month + (least(c.due_day, extract(day from (p_month + interval '1 month' - interval '1 day'))::int) - 1)
@@ -360,6 +377,7 @@ create or replace function public.create_entry_with_installments(
   p_reimburser_id      uuid     default null,
   p_status             installment_status default 'previsto',
   p_first_due_month    date     default null,
+  p_due_day_exact      boolean  default true,
   p_ends_on            date     default null,
   p_horizon_months     int      default 12,
   p_notes              text     default null,
@@ -397,8 +415,13 @@ begin
   -- fechamento do cartão. Ver ADR 0014. p_first_due_month, quando vem
   -- preenchido, manda no trilho da fatura e não no da competência.
   v_ref_one := date_trunc('month', p_purchase_date)::date;
+
+  -- Sem dia de compra não há como comparar com o fechamento, então o previsto
+  -- inexato fica no mês que ela nomeou. Ver ADR 0015.
   v_due_one := coalesce(p_first_due_month,
-                        public.sobra_due_month(p_card_id, p_purchase_date));
+                        case when p_due_day_exact
+                             then public.sobra_due_month(p_card_id, p_purchase_date)
+                             else v_ref_one end);
 
   if p_type = 'parcelado' then
     -- N parcelas, uma por mês, valor dividido com a última absorvendo o resto
@@ -411,11 +434,13 @@ begin
       v_amount := case when i = v_n then v_last else v_base end;
 
       insert into public.installments (
-        user_id, entry_id, number, amount, reference_month, due_date, status, confirmed_at
+        user_id, entry_id, number, amount, reference_month, due_date, due_day_exact,
+        status, confirmed_at
       ) values (
         v_user, v_entry, i, v_amount,
         v_ref_one,
-        public.sobra_due_date(p_card_id, v_due, (p_purchase_date + ((i - 1) * interval '1 month'))::date),
+        public.sobra_due_date(p_card_id, v_due, (p_purchase_date + ((i - 1) * interval '1 month'))::date, p_due_day_exact),
+        p_due_day_exact,
         case when i = 1 then p_status else 'previsto' end,
         case when i = 1 and p_status = 'confirmado' then now() else null end
       );
@@ -429,10 +454,12 @@ begin
       exit when p_ends_on is not null and v_month > date_trunc('month', p_ends_on)::date;
 
       insert into public.installments (
-        user_id, entry_id, number, amount, reference_month, due_date, status, confirmed_at
+        user_id, entry_id, number, amount, reference_month, due_date, due_day_exact,
+        status, confirmed_at
       ) values (
         v_user, v_entry, i, p_total_amount, v_month,
-        public.sobra_due_date(p_card_id, v_due, (v_month + (extract(day from p_purchase_date)::int - 1))),
+        public.sobra_due_date(p_card_id, v_due, (v_month + (extract(day from p_purchase_date)::int - 1)), p_due_day_exact),
+        p_due_day_exact,
         case when i = 1 then p_status else 'previsto' end,
         case when i = 1 and p_status = 'confirmado' then now() else null end
       );
@@ -441,11 +468,13 @@ begin
   else
     -- avulso: uma linha só
     insert into public.installments (
-      user_id, entry_id, number, amount, reference_month, due_date, status, confirmed_at
+      user_id, entry_id, number, amount, reference_month, due_date, due_day_exact,
+      status, confirmed_at
     ) values (
       v_user, v_entry, 1, p_total_amount,
       v_ref_one,
-      public.sobra_due_date(p_card_id, v_due_one, p_purchase_date),
+      public.sobra_due_date(p_card_id, v_due_one, p_purchase_date, p_due_day_exact),
+      p_due_day_exact,
       p_status,
       case when p_status = 'confirmado' then now() else null end
     );
@@ -464,7 +493,7 @@ returns int
 language plpgsql security definer set search_path = public as $$
 declare
   r        record;
-  v_limit date := (date_trunc('month', current_date) + make_interval(months => p_horizon_months))::date;
+  v_limit date := (date_trunc('month', public.sobra_today()) + make_interval(months => p_horizon_months))::date;
   v_next   date;   -- reference_month da próxima linha
   v_shift  int;    -- distância fixa entre competência e fatura, ADR 0014
   v_num    int;
@@ -472,12 +501,13 @@ declare
 begin
   for r in
     select e.id, e.user_id, e.total_amount, e.card_id, e.purchase_date, e.ends_on,
-           max(i.reference_month) as last_month,
-           max(i.number)          as ultimo_num
+           max(i.reference_month)     as last_month,
+           max(i.number)              as ultimo_num,
+           bool_and(i.due_day_exact)  as due_day_exact
     from public.entries e
     join public.installments i on i.entry_id = e.id
     where e.type = 'recorrente'
-      and (e.ends_on is null or e.ends_on >= current_date)
+      and (e.ends_on is null or e.ends_on >= public.sobra_today())
     group by e.id
   loop
     v_next  := (r.last_month + interval '1 month')::date;
@@ -489,12 +519,14 @@ begin
     loop
       v_num := v_num + 1;
       insert into public.installments (
-        user_id, entry_id, number, amount, reference_month, due_date, status
+        user_id, entry_id, number, amount, reference_month, due_date, due_day_exact, status
       ) values (
         r.user_id, r.id, v_num, r.total_amount, v_next,
         public.sobra_due_date(r.card_id,
                               (v_next + make_interval(months => v_shift))::date,
-                              (v_next + (extract(day from r.purchase_date)::int - 1))),
+                              (v_next + (extract(day from r.purchase_date)::int - 1)),
+                              r.due_day_exact),
+        r.due_day_exact,
         'previsto'
       );
       v_created := v_created + 1;
@@ -505,16 +537,24 @@ begin
   return v_created;
 end $$;
 
--- Confirmar um previsto, opcionalmente com o valor real.
+-- Confirmar um previsto, opcionalmente com o valor real e a data real.
+-- Confirmar é o momento em que o dia deixa de ser chute, então a data dita manda,
+-- e o previsto que não tinha dia recebe o de hoje. Quem já tinha dia exato, como
+-- parcela de cartão, mantém o dele. Ver ADR 0015.
 create or replace function public.confirm_installment(
   p_installment_id uuid,
-  p_amount         numeric default null
+  p_amount         numeric default null,
+  p_due_date       date    default null
 ) returns void
 language sql security invoker as $$
   update public.installments
-     set status       = 'confirmado',
-         amount       = coalesce(p_amount, amount),
-         confirmed_at = now()
+     set status        = 'confirmado',
+         amount        = coalesce(p_amount, amount),
+         due_date      = coalesce(p_due_date,
+                                  case when due_day_exact then due_date
+                                       else public.sobra_today() end),
+         due_day_exact = true,
+         confirmed_at  = now()
    where id = p_installment_id
      and user_id = (select auth.uid());
 $$;
@@ -681,8 +721,8 @@ select c.month,
        round(100 * c.comprometido / r.total) as pct
 from public.v_month_committed c
 join public.v_month_income    r using (month)
-where c.month > date_trunc('month', current_date)
-  and c.month <= date_trunc('month', current_date) + interval '6 months'
+where c.month > date_trunc('month', public.sobra_today())
+  and c.month <= date_trunc('month', public.sobra_today()) + interval '6 months'
 order by c.month;
 ```
 
@@ -691,7 +731,7 @@ order by c.month;
 ```sql
 select person_name, total, entry_count
 from public.v_reimbursements
-where month = date_trunc('month', current_date)::date;
+where month = date_trunc('month', public.sobra_today())::date;
 ```
 
 Se a fatura do cartão for maior que o total dele, a diferença é gasto dela, porque

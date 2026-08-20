@@ -81,7 +81,7 @@ quarto ou um terceiro sem uma ADR.
   junto, em tom mais claro e peso menor, sem separador: `agosto 2026`.
 - **A home é sempre por `due_date`.** Sem toggle de competência e caixa em lugar
   nenhum. A única visão por data da compra é o gráfico de categorias.
-  Ver [ADR 0008](DECISIONS.md), e a pendência 2 em Estado do projeto.
+  Ver [ADR 0008](DECISIONS.md), e a pendência 1 em Estado do projeto.
 - **Três números no topo da home, não um:** confirmado, previsto, sobra.
 - **Nenhum dos três leva nota embaixo do valor.** A tela inteira já é o mês, então
   contagem de lançamento e porcentagem ali são ruído.
@@ -193,9 +193,14 @@ Regras fixas do prompt:
 - Cartão padrão é o cartão azul.
 - Nome de pessoa cadastrada em reembolso significa reembolso, nunca gasto dela.
 - "previsto", "programado" e "vou gastar" criam status `previsto`.
+- **A data de um gasto que já aconteceu é a data da mensagem**, no fuso de
+  Brasília. Data escrita na mensagem manda: "gastei 40 no cartão dia 12" grava
+  dia 12. Ver [ADR 0015](DECISIONS.md).
+- **Previsto sem dia é só o mês**, e o bot não inventa um dia para ele.
 - "pet", "gato" e "gatu" são todos a categoria pet.
 - Nome de remédio e de consulta é saúde.
-- Faltando informação, pergunta. Nunca chuta.
+- Faltando informação, pergunta. Nunca chuta. A data é a única exceção, porque
+  ela tem um padrão que acerta quase sempre.
 
 Sempre responde com o que entendeu e pede confirmação antes de gravar. Para
 confirmar um previsto, procura entre os previstos abertos do mês e, havendo
@@ -277,21 +282,22 @@ Uma ADR sem custo declarado não foi pensada.
 **Fase 1, em revisão.** Existem documentação e mockup estático. Não existem
 backend, autenticação nem banco.
 
-### Em aberto, decidir antes de escrever migration
+### Em aberto
 
-1. **`due_day_exato`**, o boolean que marca previsto sem dia conhecido. Decidido no
-   desenho, ainda sem ADR e sem coluna.
-2. **A tela do mês não existe ainda.** O "ver mais" do card de lançamentos leva
+Nada aqui trava mais a migration. O que faltava do modelo foi decidido nas ADR
+0014 e 0015. O que sobrou é tela e portfólio.
+
+1. **A tela do mês não existe ainda.** O "ver mais" do card de lançamentos leva
    para uma tela própria em largura cheia, com os lançamentos do mês inteiro,
    busca e filtro por categoria e por cartão. Decidido, ainda não desenhado. A
    home não estende a lista no lugar, justamente para as duas colunas continuarem
    terminando na mesma linha.
-3. **Falta imagem no topo do README.** Fica para o fim da fase de telas, quando
+2. **Falta imagem no topo do README.** Fica para o fim da fase de telas, quando
    existirem home, login e as outras páginas prontas. É o item de maior impacto
    isolado num repositório de portfólio, então não pode ser esquecido.
-4. **Falta publicar a demo.** O mockup é estático e cabe na Cloudflare Pages, com
+3. **Falta publicar a demo.** O mockup é estático e cabe na Cloudflare Pages, com
    o link no topo do README. Também fica para o fim, junto com a imagem.
-5. **A ADR 0008 exige que a visão por data da compra leve rótulo escrito por
+4. **A ADR 0008 exige que a visão por data da compra leve rótulo escrito por
    extenso, e esse rótulo saiu da tela.** O texto era um rodapé no card de
    categorias e foi recusado na revisão. Ou o rótulo volta em outra forma, ou a
    ADR 0008 precisa de uma nova que a substitua nesse ponto.

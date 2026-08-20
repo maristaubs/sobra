@@ -655,3 +655,81 @@ fixa que `sobra_due_shift` devolveu.
 - **Custo:** a regra `>=` não é universal entre emissores. Alguns colocam a
   compra do próprio dia do fechamento ainda na fatura que fecha. Se aparecer um
   cartão assim, ele vai precisar de uma coluna, e esta ADR de uma substituta.
+
+---
+
+## ADR 0015, a data vem da mensagem, e previsto sem dia vive no mês
+
+**Data:** 2026-08-20
+**Status:** aceita
+
+### Contexto
+
+`installments.due_date` é `not null`, então toda parcela é obrigada a ter um dia,
+inclusive as que ninguém sabe qual é. Dizer "em setembro vou no dentista, uns
+R$ 400" dá o mês e não dá o dia, e mesmo assim o banco exige uma data. O sistema
+inventa uma, e uma vez gravada ela fica idêntica a uma data verdadeira. Não
+existe como perguntar depois se aquele dia é real ou é enchimento.
+
+Três coisas quebram por causa disso:
+
+1. `confirm_installment` trocava `status`, `amount` e `confirmed_at`, e não tocava
+   em `due_date`. O previsto com dia inventado, ao ser confirmado, guardava o dia
+   inventado, e confirmado é agrupado por dia na home. O lançamento aparecia no
+   cabeçalho de dia errado, sem nada na tela denunciando.
+2. Atraso, que a ADR 0003 deixou como derivado de `due_date < today`, dispara
+   sozinho num dia que nunca foi prometido.
+3. A ADR 0014 decide em que fatura a compra cai olhando o dia da compra. Sem dia,
+   não há fatura, e a diferença entre uma fatura e a seguinte é um mês inteiro de
+   sobra.
+
+A pendência aberta chamava isso de `due_day_exato`. O nome está em português e é
+coluna estrutural, o que contraria a ADR 0013.
+
+### Decisão
+
+**A data de um gasto que já aconteceu é a data da mensagem.** O bot não pergunta.
+Quando ela escreve a data junto, como em "gastei 40 no cartão dia 12", a data
+escrita manda. Só isso: ou o que ela disse, ou hoje.
+
+**O hoje é o dela, não o do servidor.** O Worker roda na Cloudflare e o Postgres
+responde em UTC, e o cartão fecha num dia baixo do mês. Uma mensagem enviada às
+23h30 do dia 1 é dia 2 em UTC, cai do outro lado do fechamento e desloca a fatura
+em um mês inteiro. A data passa a ser resolvida em `America/Sao_Paulo`, por
+`sobra_today()`, e `current_date` some do schema.
+
+**Previsto sem dia é só o mês.** Ele grava `due_day_exact = false`, recebe
+`due_date` no último dia do mês nomeado, e **o corte do cartão não se aplica**,
+porque não existe dia de compra para comparar com o fechamento. O último dia do
+mês mantém a parcela no mês certo, ordena para o fim e não lê como atrasada antes
+do mês acabar.
+
+**Confirmar acerta a data.** `confirm_installment` passa a aceitar a data real.
+Sem data, um previsto inexato vira a data de hoje, e um previsto que já tinha dia
+exato, como parcela de cartão, mantém o dia dele. Confirmar sempre deixa
+`due_day_exact = true`, porque confirmar é o momento em que o dia deixa de ser
+chute.
+
+A coluna se chama `due_day_exact`, em `installments`, `not null default true`. É
+sobre o dia, e não sobre a data, porque o mês é sempre conhecido: previsto sem mês
+não existe.
+
+### Consequência
+
+- O caminho normal fica sem pergunta nenhuma. Ela manda "40 no cartão", e data,
+  fatura e mês saem sozinhos.
+- A aba de previsto continua sem data na tela, como já era, e agora isso é
+  verdade no banco também, em vez de ser uma data escondida.
+- **Custo:** previsto sem dia no cartão fica no mês que ela nomeou, e o dinheiro
+  pode sair no mês seguinte. É um erro de até um mês, aceito de propósito, porque
+  um previsto sem dia é linha de orçamento e não compra. Quando ela disser o dia,
+  o corte volta a valer e a fatura sai certa.
+- **Custo:** lançar hoje uma compra de ontem exige que ela escreva a data. Se
+  esquecer, e a compra for do dia 1 com a mensagem no dia 2, a fatura inteira
+  muda de mês. É a borda mais afiada do sistema, e ela existe por causa do
+  fechamento cair num dia baixo.
+- **Custo:** `due_day_exact` é quase sempre `true`, e campo que quase nunca varia
+  é campo que se esquece de preencher. Isso só se segura porque nada escreve em
+  `installments` fora de `create_entry_with_installments` (ADR 0002).
+- **Custo:** o fuso fica escrito no schema. Mudar de país passa a exigir
+  migration, e não é configuração.
