@@ -209,12 +209,11 @@ Regras fixas do prompt:
   ela tem um padrão que acerta quase sempre.
 
 Sempre responde com o que entendeu e pede confirmação antes de gravar. Havendo
-cartão, essa confirmação diz **em que mês o pagamento cai**, porque é a única
-coisa que ela não consegue calcular de cabeça, e é sempre `pagamento neste mês`
-ou `pagamento no próximo mês`. Dia nenhum aparece escrito ali: o dia é sempre o
-mesmo, o mês é o que muda. A conta é contra o mês de hoje e não o mês da compra,
-senão um lançamento retroativo lê ao contrário. Caindo mais de um mês à frente,
-o mês vai escrito por extenso, como `pagamento em dezembro`. Para
+cartão, essa confirmação diz **em que mês o pagamento cai**, sempre com o nome do
+mês escrito: `pagamento em outubro`. Nunca relativo. `próximo mês` precisa de uma
+âncora, e lançamento retroativo lê ao contrário: compra de 28 de setembro
+informada em 3 de outubro sai em outubro, que é este mês e não o próximo. Dia
+nenhum aparece ali, porque o dia é sempre o mesmo e o mês é o que muda. Para
 confirmar um previsto, procura entre os previstos abertos do mês e, havendo
 ambiguidade, lista as opções com botão.
 
