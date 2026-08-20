@@ -681,7 +681,7 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
   <div class="cabecalho">
     <div class="tit-seletor">
       <button aria-label="Mês anterior" data-sem-tela="mockup estático, só agosto de 2026 tem dados"><svg><use href="#i-esq"/></svg></button>
-      <h1 class="titulo">agosto <span class="ano">2026</span></h1>
+      <h1 class="titulo" id="h-titulo"></h1>
       <button aria-label="Próximo mês" data-sem-tela="mockup estático, só agosto de 2026 tem dados"><svg><use href="#i-dir"/></svg></button>
     </div>
   </div>
@@ -691,38 +691,16 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
     <div class="renda-topo">
       <p class="rot">renda prevista</p>
       <div class="linha">
-        <span class="val num"><span class="cifrao">R$</span>8.240,00</span>
-        <span class="rec num">R$ 6.940,00 já recebido</span>
+        <span class="val num" id="h-renda"></span>
+        <span class="rec num" id="h-recebido"></span>
       </div>
     </div>
 
-    <div class="tres">
-      <div class="stat">
-        <p class="stat-rotulo"><i class="marca-confirmado"></i>confirmado</p>
-        <p class="stat-valor num"><span class="cifrao">R$</span>5.833,45</p>
-      </div>
-      <div class="stat">
-        <p class="stat-rotulo"><i class="marca-previsto"></i>previsto</p>
-        <p class="stat-valor previsto num"><span class="cifrao">R$</span>1.569,70</p>
-      </div>
-      <div class="stat">
-        <p class="stat-rotulo"><i class="marca-sobra"></i>sobra</p>
-        <p class="stat-valor positivo num"><span class="cifrao">R$</span>836,85</p>
-      </div>
-    </div>
+    <div class="tres" id="h-tres"></div>
 
     <div class="medidor">
-      <div class="medidor-trilha" role="img"
-           aria-label="Da renda prevista de 8.240 reais, 70,8 por cento está confirmado, 19,1 por cento está previsto e 10,2 por cento sobra.">
-        <span class="seg-confirmado" style="width:70.79%"></span>
-        <span class="seg-previsto"   style="width:19.05%"></span>
-        <span class="seg-sobra"      style="width:10.16%"></span>
-      </div>
-      <div class="medidor-legenda">
-        <span><i class="marca-confirmado"></i>71%</span>
-        <span><i class="marca-previsto"></i>19%</span>
-        <span><i class="marca-sobra"></i>10%</span>
-      </div>
+      <div class="medidor-trilha" id="h-trilha" role="img"></div>
+      <div class="medidor-legenda" id="h-legenda"></div>
     </div>
   </section>
 
@@ -731,114 +709,12 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
     <!-- lançamentos -->
     <div class="coluna coluna-lista">
       <section class="card">
-                <div class="ab-titulo" role="tablist">
-          <button type="button" data-aba="confirmado" role="tab" aria-selected="true">lançamentos <span class="n num">33</span></button>
-          <button type="button" data-aba="previsto" role="tab" aria-selected="false">previsto <span class="n num">8</span></button>
+        <div class="ab-titulo" role="tablist">
+          <button type="button" data-aba="confirmado" role="tab" aria-selected="true">lançamentos <span class="n num" id="h-n-confirmado"></span></button>
+          <button type="button" data-aba="previsto" role="tab" aria-selected="false">previsto <span class="n num" id="h-n-previsto"></span></button>
         </div>
 
-        <ul class="lista">
-          <li class="dia" data-tipo="confirmado">14 de agosto</li>
-          <li class="item" style="--cor:var(--c-pet)" data-tipo="confirmado">
-            <span class="bolha"><svg><use href="#i-pet"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">ração e areia do pet</span>
-              <span class="item-meta">cartão azul · pet</span>
-            </span>
-            <span class="item-valor num"><span class="rs">R$</span>129,90</span>
-          </li>
-          <li class="dia" data-tipo="confirmado">13 de agosto</li>
-          <li class="item" style="--cor:var(--c-saude)" data-tipo="confirmado">
-            <span class="bolha"><svg><use href="#i-saude"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">consulta</span>
-              <span class="item-meta">cartão azul · saúde</span>
-            </span>
-            <span class="item-valor num"><span class="rs">R$</span>289,00</span>
-          </li>
-          <li class="dia" data-tipo="confirmado">12 de agosto</li>
-          <li class="item" style="--cor:var(--c-saude)" data-tipo="confirmado">
-            <span class="bolha"><svg><use href="#i-saude"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">farmácia do joão<span class="tag tag-reembolso"><svg style="width:11px;height:11px"><use href="#i-reembolso"/></svg>joão</span></span>
-              <span class="item-meta">cartão roxo · saúde · não entra na sua conta</span>
-            </span>
-            <span class="item-valor num" style="color:var(--ink-28)"><span class="rs">R$</span>156,40</span>
-          </li>
-          <li class="item" style="--cor:var(--c-transporte)" data-tipo="confirmado">
-            <span class="bolha"><svg><use href="#i-transporte"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">combustível do joão<span class="tag tag-reembolso"><svg style="width:11px;height:11px"><use href="#i-reembolso"/></svg>joão</span></span>
-              <span class="item-meta">cartão roxo · transporte · não entra na sua conta</span>
-            </span>
-            <span class="item-valor num" style="color:var(--ink-28)"><span class="rs">R$</span>200,00</span>
-          </li>
-          <li class="dia" data-tipo="confirmado">11 de agosto</li>
-          <li class="item" style="--cor:var(--c-casa)" data-tipo="confirmado">
-            <span class="bolha"><svg><use href="#i-casaobj"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">notebook dell</span>
-              <span class="item-meta">cartão azul · casa e objetos · parcela 5 de 12</span>
-            </span>
-            <span class="item-valor num"><span class="rs">R$</span>390,00</span>
-          </li>
-          <li class="dia" data-tipo="confirmado">8 de agosto</li>
-          <li class="item" style="--cor:var(--c-mercado)" data-tipo="confirmado">
-            <span class="bolha"><svg><use href="#i-mercado"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">mercado da semana</span>
-              <span class="item-meta">cartão azul · mercado</span>
-            </span>
-            <span class="item-valor num"><span class="rs">R$</span>412,30</span>
-          </li>
-          <li class="item" style="--cor:var(--c-moradia)" data-tipo="confirmado">
-            <span class="bolha"><svg><use href="#i-moradia"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">conta de luz</span>
-              <span class="item-meta">cartão azul · moradia</span>
-            </span>
-            <span class="item-valor num"><span class="rs">R$</span>189,40</span>
-          </li>
-          <li class="item item--previsto" style="--cor:var(--c-dividas)" data-tipo="previsto">
-            <span class="bolha"><svg><use href="#i-dividas"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">pagamento para a ana</span>
-              <span class="item-meta">pix · dívidas</span>
-            </span>
-            <span class="item-valor num"><span class="rs">R$</span>400,00</span>
-          </li>
-          <li class="item item--previsto" style="--cor:var(--c-mercado)" data-tipo="previsto">
-            <span class="bolha"><svg><use href="#i-mercado"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">mercado do fim do mês</span>
-              <span class="item-meta">cartão azul · mercado · estimativa</span>
-            </span>
-            <span class="item-valor num"><span class="rs">R$</span>300,00</span>
-          </li>
-          <li class="item item--previsto" style="--cor:var(--c-transporte)" data-tipo="previsto">
-            <span class="bolha"><svg><use href="#i-transporte"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">gasolina</span>
-              <span class="item-meta">cartão azul · transporte</span>
-            </span>
-            <span class="item-valor num"><span class="rs">R$</span>220,00</span>
-          </li>
-          <li class="item item--previsto" style="--cor:var(--c-roupas)" data-tipo="previsto">
-            <span class="bolha"><svg><use href="#i-roupas"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">cabeleireiro</span>
-              <span class="item-meta">cartão azul · roupas e beleza</span>
-            </span>
-            <span class="item-valor num"><span class="rs">R$</span>180,00</span>
-          </li>
-          <li class="item item--previsto" style="--cor:var(--c-presentes)" data-tipo="previsto">
-            <span class="bolha"><svg><use href="#i-presentes"/></svg></span>
-            <span class="item-corpo">
-              <span class="item-desc">aniversário da bia</span>
-              <span class="item-meta">pix · presentes</span>
-            </span>
-            <span class="item-valor num"><span class="rs">R$</span>120,00</span>
-          </li>
-        </ul>
+        <ul class="lista" id="h-lista"></ul>
 
         <a class="ver-tudo" href="#" id="ver-tudo-lista" data-sem-tela="a tela do mês ainda não existe">ver mais</a>
       </section>
@@ -849,104 +725,12 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
 
       <section class="card">
         <div class="card-cabecalho"><h2 class="card-titulo">por categoria</h2></div>
-
-                        <div class="cat" style="--cor:var(--c-moradia)">
-          <span class="cat-nome"><svg><use href="#i-moradia"/></svg>moradia</span>
-          <span class="cat-barra"><span style="width:100%"></span></span>
-          <span class="cat-pct num">30%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>2.239,90</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-saude)">
-          <span class="cat-nome"><svg><use href="#i-saude"/></svg>saúde</span>
-          <span class="cat-barra"><span style="width:50.4%"></span></span>
-          <span class="cat-pct num">15%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>1.128,00</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-mercado)">
-          <span class="cat-nome"><svg><use href="#i-mercado"/></svg>mercado</span>
-          <span class="cat-barra"><span style="width:43.7%"></span></span>
-          <span class="cat-pct num">13%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>977,95</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-casa)">
-          <span class="cat-nome"><svg><use href="#i-casaobj"/></svg>casa e objetos</span>
-          <span class="cat-barra"><span style="width:33.9%"></span></span>
-          <span class="cat-pct num">10%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>759,20</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-transporte)">
-          <span class="cat-nome"><svg><use href="#i-transporte"/></svg>transporte</span>
-          <span class="cat-barra"><span style="width:18.2%"></span></span>
-          <span class="cat-pct num">5,5%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>407,40</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-dividas)">
-          <span class="cat-nome"><svg><use href="#i-dividas"/></svg>dívidas</span>
-          <span class="cat-barra"><span style="width:17.9%"></span></span>
-          <span class="cat-pct num">5,4%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>400,00</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-restaurantes)">
-          <span class="cat-nome"><svg><use href="#i-restaurantes"/></svg>restaurantes</span>
-          <span class="cat-barra"><span style="width:15.0%"></span></span>
-          <span class="cat-pct num">4,5%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>335,70</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-viagem)">
-          <span class="cat-nome"><svg><use href="#i-viagem"/></svg>viagem</span>
-          <span class="cat-barra"><span style="width:14.1%"></span></span>
-          <span class="cat-pct num">4,3%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>315,00</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-roupas)">
-          <span class="cat-nome"><svg><use href="#i-roupas"/></svg>roupas e beleza</span>
-          <span class="cat-barra"><span style="width:12.0%"></span></span>
-          <span class="cat-pct num">3,6%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>269,90</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-pet)">
-          <span class="cat-nome"><svg><use href="#i-pet"/></svg>pet</span>
-          <span class="cat-barra"><span style="width:11.2%"></span></span>
-          <span class="cat-pct num">3,4%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>249,90</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-assinaturas)">
-          <span class="cat-nome"><svg><use href="#i-assinaturas"/></svg>assinaturas</span>
-          <span class="cat-barra"><span style="width:5.5%"></span></span>
-          <span class="cat-pct num">1,7%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>123,60</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-presentes)">
-          <span class="cat-nome"><svg><use href="#i-presentes"/></svg>presentes</span>
-          <span class="cat-barra"><span style="width:5.4%"></span></span>
-          <span class="cat-pct num">1,6%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>120,00</span>
-        </div>
-        <div class="cat" style="--cor:var(--c-impostos)">
-          <span class="cat-nome"><svg><use href="#i-impostos"/></svg>impostos</span>
-          <span class="cat-barra"><span style="width:3.4%"></span></span>
-          <span class="cat-pct num">1,0%</span>
-          <span class="cat-valor num"><span class="rs">R$</span>76,60</span>
-        </div>
-
-        </section>
+        <div id="h-categorias" style="display:contents"></div>
+      </section>
 
       <section class="card">
         <div class="card-cabecalho"><h2 class="card-titulo">a receber de volta</h2></div>
-
-        <div class="reemb">
-          <span class="inicial" style="width:42px;height:42px;font-size:16px">J</span>
-          <span>
-            <span style="display:block;font-weight:600">joão</span>
-            <span style="display:block;font-size:12.5px;color:var(--ink-45)">3 lançamentos no cartão roxo</span>
-          </span>
-          <span class="reemb-valor num">R$ 401,30</span>
-        </div>
-
-        <p class="rodape-card">
-          fatura do cartão roxo em agosto: R$ 549,90.<br>
-          R$ 401,30 são do joão e R$ 148,60 são seus.
-        </p>
+        <div id="h-reembolso" style="display:contents"></div>
       </section>
 
     </div>
@@ -1336,6 +1120,270 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
 /* Mockup estático. O único comportamento aqui é trocar de tela e abrir
    a composição de um mês. Nenhum dado é calculado, tudo está no HTML. */
 (function () {
+
+/* ====================================================================
+   DADOS DO MOCKUP
+   Ficção escrita à mão. Elenco fixo: cartões azul e roxo, joão (reembolso),
+   ana e bia (dívida). Nenhum número aqui é real, e nenhum vem de fora.
+   A tela se desenha a partir daqui, então mês novo é escrever dados, e não
+   escrever HTML. É o mesmo formato que o front vai ler do banco depois.
+   ==================================================================== */
+  var CAT = {
+    'moradia':         { cor:'moradia',      icone:'moradia'      },
+    'mercado':         { cor:'mercado',      icone:'mercado'      },
+    'restaurantes':    { cor:'restaurantes', icone:'restaurantes' },
+    'transporte':      { cor:'transporte',   icone:'transporte'   },
+    'saúde':           { cor:'saude',        icone:'saude'        },
+    'pet':             { cor:'pet',          icone:'pet'          },
+    'casa e objetos':  { cor:'casa',         icone:'casaobj'      },
+    'roupas e beleza': { cor:'roupas',       icone:'roupas'       },
+    'assinaturas':     { cor:'assinaturas',  icone:'assinaturas'  },
+    'viagem':          { cor:'viagem',       icone:'viagem'       },
+    'presentes':       { cor:'presentes',    icone:'presentes'    },
+    'impostos':        { cor:'impostos',     icone:'impostos'     },
+    'dívidas':         { cor:'dividas',      icone:'dividas'      }
+  };
+
+  var MESES = {
+    '2026-08': {
+      rotulo: 'agosto', ano: 2026,
+      renda: { previsto: 8240.00, recebido: 6940.00 },
+      lancamentos: [
+      {d:'aluguel', v:1800.00, c:'moradia', cartao:'pix', dia:5},
+      {d:'conta de luz', v:189.40, c:'moradia', cartao:'cartão azul', dia:8},
+      {d:'internet', v:129.90, c:'moradia', cartao:'cartão azul', dia:7},
+      {d:'conta de gás', v:120.60, c:'moradia', cartao:'pix', s:'previsto'},
+      {d:'consulta', v:289.00, c:'saúde', cartao:'cartão azul', dia:13},
+      {d:'dentista', v:400.00, c:'saúde', cartao:'cartão azul', dia:6, parcela:[3,6]},
+      {d:'academia', v:149.00, c:'saúde', cartao:'cartão azul', dia:5},
+      {d:'farmácia', v:90.00, c:'saúde', cartao:'cartão roxo', dia:9},
+      {d:'exame de sangue', v:150.00, c:'saúde', cartao:'cartão azul', dia:4},
+      {d:'remédio contínuo', v:50.00, c:'saúde', cartao:'cartão azul', dia:2},
+      {d:'mercado da semana', v:412.30, c:'mercado', cartao:'cartão azul', dia:8},
+      {d:'feira', v:89.50, c:'mercado', cartao:'pix', dia:3},
+      {d:'mercado', v:176.15, c:'mercado', cartao:'cartão azul', dia:1},
+      {d:'mercado do fim do mês', v:300.00, c:'mercado', cartao:'cartão azul', s:'previsto'},
+      {d:'notebook dell', v:390.00, c:'casa e objetos', cartao:'cartão azul', dia:11, parcela:[5,12]},
+      {d:'sofá', v:345.00, c:'casa e objetos', cartao:'cartão azul', dia:6, parcela:[6,8]},
+      {d:'jogo de toalhas', v:15.30, c:'casa e objetos', cartao:'cartão azul', dia:2},
+      {d:'pilha', v:8.90, c:'casa e objetos', cartao:'cartão azul', dia:2},
+      {d:'uber', v:97.40, c:'transporte', cartao:'cartão azul', dia:10},
+      {d:'estacionamento', v:60.00, c:'transporte', cartao:'cartão azul', dia:7},
+      {d:'ônibus', v:30.00, c:'transporte', cartao:'pix', dia:4},
+      {d:'gasolina', v:220.00, c:'transporte', cartao:'cartão azul', s:'previsto'},
+      {d:'jantar', v:145.20, c:'restaurantes', cartao:'cartão azul', dia:9},
+      {d:'café', v:22.80, c:'restaurantes', cartao:'cartão azul', dia:5},
+      {d:'delivery', v:58.60, c:'restaurantes', cartao:'cartão roxo', dia:3},
+      {d:'almoço de sábado', v:109.10, c:'restaurantes', cartao:'cartão azul', s:'previsto'},
+      {d:'passagem para salvador', v:315.00, c:'viagem', cartao:'cartão azul', dia:4, parcela:[2,6]},
+      {d:'camiseta', v:89.90, c:'roupas e beleza', cartao:'cartão azul', dia:2},
+      {d:'cabeleireiro', v:180.00, c:'roupas e beleza', cartao:'cartão azul', s:'previsto'},
+      {d:'ração e areia do pet', v:129.90, c:'pet', cartao:'cartão azul', dia:14},
+      {d:'banho e tosa', v:120.00, c:'pet', cartao:'cartão azul', s:'previsto'},
+      {d:'streaming', v:39.90, c:'assinaturas', cartao:'cartão azul', dia:1},
+      {d:'icloud', v:14.90, c:'assinaturas', cartao:'cartão azul', dia:1},
+      {d:'música', v:21.90, c:'assinaturas', cartao:'cartão azul', dia:1},
+      {d:'celular', v:46.90, c:'assinaturas', cartao:'cartão azul', dia:1},
+      {d:'DAS', v:76.60, c:'impostos', cartao:'pix', dia:10},
+      {d:'pagamento para a ana', v:400.00, c:'dívidas', cartao:'pix', s:'previsto'},
+      {d:'aniversário da bia', v:120.00, c:'presentes', cartao:'pix', s:'previsto'},
+      {d:'farmácia do joão', v:156.40, c:'saúde', cartao:'cartão roxo', dia:12, reemb:'joão'},
+      {d:'combustível do joão', v:200.00, c:'transporte', cartao:'cartão roxo', dia:12, reemb:'joão'},
+      {d:'almoço do joão', v:44.90, c:'restaurantes', cartao:'cartão roxo', dia:6, reemb:'joão'}
+      ]
+    }
+  };
+
+  var MES_ATUAL = '2026-08';
+
+  /* ---------- formatação ----------
+     R$ acompanha todo valor, sempre, e todo número monetário é tabular. */
+  function brl(v) {
+    return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  /* Percentual de dez para cima vai inteiro, abaixo disso vai com uma casa,
+     senão categoria pequena vira zero no texto e some duas vezes. */
+  function pct(v) {
+    return v >= 10 ? String(Math.round(v)) : v.toFixed(1).replace('.', ',');
+  }
+  function esc(t) {
+    return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function cent(v) { return Math.round(v * 100); }
+
+  /* ---------- o que a tela precisa saber sobre um mês ----------
+     Lançamento com reembolso não entra em nenhum total dela: nem nos três
+     números, nem no gráfico de categorias. */
+  function resumo(chave) {
+    var m = MESES[chave];
+    var dela = m.lancamentos.filter(function (l) { return !l.reemb; });
+    var soma = function (arr) {
+      return arr.reduce(function (t, l) { return t + cent(l.v); }, 0) / 100;
+    };
+    var confirmado = soma(dela.filter(function (l) { return l.s !== 'previsto'; }));
+    var previsto   = soma(dela.filter(function (l) { return l.s === 'previsto'; }));
+
+    var porCat = {};
+    dela.forEach(function (l) { porCat[l.c] = (porCat[l.c] || 0) + cent(l.v); });
+    var categorias = Object.keys(porCat)
+      .map(function (nome) { return { nome: nome, valor: porCat[nome] / 100 }; })
+      .sort(function (a, b) { return b.valor - a.valor; });
+
+    var porPessoa = {};
+    m.lancamentos.filter(function (l) { return l.reemb; }).forEach(function (l) {
+      var p = porPessoa[l.reemb] || (porPessoa[l.reemb] = { total: 0, n: 0, cartao: l.cartao });
+      p.total += cent(l.v);
+      p.n += 1;
+    });
+
+    return {
+      mes: m,
+      confirmado: confirmado,
+      previsto: previsto,
+      sobra: (cent(m.renda.previsto) - cent(confirmado) - cent(previsto)) / 100,
+      gasto: (cent(confirmado) + cent(previsto)) / 100,
+      categorias: categorias,
+      reembolsos: Object.keys(porPessoa).map(function (nome) {
+        var p = porPessoa[nome];
+        return { nome: nome, total: p.total / 100, n: p.n, cartao: p.cartao };
+      }),
+      faturaCartao: function (nome) {
+        return soma(m.lancamentos.filter(function (l) { return l.cartao === nome; }));
+      }
+    };
+  }
+
+  /* ---------- desenho ----------
+     A lista não rola: mostra um punhado e o resto fica atrás do "ver mais". */
+  var LIMITE_HOME = 7;
+
+  function linhaLancamento(l) {
+    var c = CAT[l.c];
+    var meta = [l.cartao, l.c];
+    if (l.parcela) meta.push('parcela ' + l.parcela[0] + ' de ' + l.parcela[1]);
+    if (l.reemb) meta.push('não entra na sua conta');
+
+    var tag = l.reemb
+      ? '<span class="tag tag-reembolso"><svg style="width:11px;height:11px"><use href="#i-reembolso"/></svg>' + esc(l.reemb) + '</span>'
+      : '';
+    var estiloValor = l.reemb ? ' style="color:var(--ink-28)"' : '';
+
+    return '<li class="item' + (l.s === 'previsto' ? ' item--previsto' : '') +
+           '" style="--cor:var(--c-' + c.cor + ')">' +
+             '<span class="bolha"><svg><use href="#i-' + c.icone + '"/></svg></span>' +
+             '<span class="item-corpo">' +
+               '<span class="item-desc">' + esc(l.d) + tag + '</span>' +
+               '<span class="item-meta">' + esc(meta.join(' · ')) + '</span>' +
+             '</span>' +
+             '<span class="item-valor num"' + estiloValor + '><span class="rs">R$</span>' + brl(l.v) + '</span>' +
+           '</li>';
+  }
+
+  /* Confirmado vai agrupado por dia, do mais recente para o mais antigo.
+     Previsto não leva data nenhuma e vai do maior valor para o menor. */
+  function desenhaLista(r, aba) {
+    var itens = r.mes.lancamentos.filter(function (l) {
+      return aba === 'previsto' ? l.s === 'previsto' : l.s !== 'previsto';
+    });
+
+    if (aba === 'previsto') {
+      itens.sort(function (a, b) { return b.v - a.v; });
+      return itens.slice(0, LIMITE_HOME).map(linhaLancamento).join('');
+    }
+
+    itens.sort(function (a, b) { return b.dia - a.dia || b.v - a.v; });
+    var html = '', diaAtual = null;
+    itens.slice(0, LIMITE_HOME).forEach(function (l) {
+      if (l.dia !== diaAtual) {
+        diaAtual = l.dia;
+        html += '<li class="dia">' + l.dia + ' de ' + r.mes.rotulo + '</li>';
+      }
+      html += linhaLancamento(l);
+    });
+    return html;
+  }
+
+  function desenhaHome(chave, aba) {
+    var r = resumo(chave), m = r.mes;
+
+    document.getElementById('h-titulo').innerHTML =
+      esc(m.rotulo) + ' <span class="ano">' + m.ano + '</span>';
+    document.getElementById('h-renda').innerHTML =
+      '<span class="cifrao">R$</span>' + brl(m.renda.previsto);
+    document.getElementById('h-recebido').textContent =
+      'R$ ' + brl(m.renda.recebido) + ' já recebido';
+
+    var tres = [
+      { rot: 'confirmado', valor: r.confirmado, classe: '' },
+      { rot: 'previsto',   valor: r.previsto,   classe: ' previsto' },
+      { rot: 'sobra',      valor: r.sobra,      classe: r.sobra >= 0 ? ' positivo' : ' negativo' }
+    ];
+    document.getElementById('h-tres').innerHTML = tres.map(function (t) {
+      return '<div class="stat">' +
+               '<p class="stat-rotulo"><i class="marca-' + t.rot + '"></i>' + t.rot + '</p>' +
+               '<p class="stat-valor' + t.classe + ' num"><span class="cifrao">R$</span>' + brl(Math.abs(t.valor)) + '</p>' +
+             '</div>';
+    }).join('');
+
+    /* A trilha vale o maior dos dois, renda ou gasto. Ver ADR 0012. */
+    var base = Math.max(m.renda.previsto, r.gasto);
+    var p = {
+      confirmado: r.confirmado / base * 100,
+      previsto:   r.previsto   / base * 100,
+      sobra:      Math.max(r.sobra, 0) / base * 100
+    };
+    var trilha = document.getElementById('h-trilha');
+    trilha.innerHTML =
+      '<span class="seg-confirmado" style="width:' + p.confirmado.toFixed(2) + '%"></span>' +
+      '<span class="seg-previsto"   style="width:' + p.previsto.toFixed(2) + '%"></span>' +
+      (p.sobra > 0 ? '<span class="seg-sobra" style="width:' + p.sobra.toFixed(2) + '%"></span>' : '');
+    trilha.setAttribute('aria-label',
+      'Da renda prevista de ' + brl(m.renda.previsto) + ' reais, ' + pct(p.confirmado) +
+      ' por cento está confirmado, ' + pct(p.previsto) + ' por cento está previsto e ' +
+      pct(p.sobra) + ' por cento sobra.');
+    document.getElementById('h-legenda').innerHTML =
+      ['confirmado', 'previsto', 'sobra'].map(function (k) {
+        return '<span><i class="marca-' + k + '"></i>' + Math.round(p[k]) + '%</span>';
+      }).join('');
+
+    ['confirmado', 'previsto'].forEach(function (k) {
+      document.getElementById('h-n-' + k).textContent = m.lancamentos.filter(function (l) {
+        return k === 'previsto' ? l.s === 'previsto' : l.s !== 'previsto';
+      }).length;
+    });
+
+    document.getElementById('h-lista').innerHTML = desenhaLista(r, aba);
+
+    /* A barra é proporcional à maior categoria do mês, o percentual é sobre o
+       total. Os dois não medem a mesma coisa de propósito. */
+    var maior = r.categorias.length ? r.categorias[0].valor : 1;
+    document.getElementById('h-categorias').innerHTML = r.categorias.map(function (c) {
+      var d = CAT[c.nome];
+      return '<div class="cat" style="--cor:var(--c-' + d.cor + ')">' +
+               '<span class="cat-nome"><svg><use href="#i-' + d.icone + '"/></svg>' + esc(c.nome) + '</span>' +
+               '<span class="cat-barra"><span style="width:' + (c.valor / maior * 100).toFixed(1) + '%"></span></span>' +
+               '<span class="cat-pct num">' + pct(c.valor / r.gasto * 100) + '%</span>' +
+               '<span class="cat-valor num"><span class="rs">R$</span>' + brl(c.valor) + '</span>' +
+             '</div>';
+    }).join('');
+
+    document.getElementById('h-reembolso').innerHTML = r.reembolsos.map(function (pes) {
+      var fatura = r.faturaCartao(pes.cartao);
+      var dela = (cent(fatura) - cent(pes.total)) / 100;
+      return '<div class="reemb">' +
+               '<span class="inicial" style="width:42px;height:42px;font-size:16px">' + esc(pes.nome[0].toUpperCase()) + '</span>' +
+               '<span>' +
+                 '<span style="display:block;font-weight:600">' + esc(pes.nome) + '</span>' +
+                 '<span style="display:block;font-size:12.5px;color:var(--ink-45)">' +
+                   pes.n + ' lançamento' + (pes.n > 1 ? 's' : '') + ' no ' + esc(pes.cartao) + '</span>' +
+               '</span>' +
+               '<span class="reemb-valor num">R$ ' + brl(pes.total) + '</span>' +
+             '</div>' +
+             '<p class="rodape-card">fatura do ' + esc(pes.cartao) + ' em ' + esc(m.rotulo) + ': R$ ' + brl(fatura) + '.<br>' +
+               'R$ ' + brl(pes.total) + ' são do ' + esc(pes.nome) + ' e R$ ' + brl(dela) + ' são seus.</p>';
+    }).join('');
+  }
+
   var telas = document.querySelectorAll('.view');
   var botoes = document.querySelectorAll('[data-ir]');
 
@@ -1386,27 +1434,13 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
      mostra dia nenhum, porque previsto é do mês e o mês já está no topo. */
   (function () {
     var abas = document.querySelectorAll('.ab-titulo button');
-    if (!abas.length) return;
-    var lista = document.querySelector('#home .lista');
-
-
-    function aplicar(tipo) {
-      lista.querySelectorAll('li:not(.dia)').forEach(function (li) {
-        li.hidden = li.dataset.tipo !== tipo;
-      });
-      lista.querySelectorAll('li.dia').forEach(function (cab) {
-        cab.hidden = tipo === 'previsto';
-      });
-    }
-
+    desenhaHome(MES_ATUAL, 'confirmado');
     abas.forEach(function (b) {
       b.addEventListener('click', function () {
         abas.forEach(function (o) { o.setAttribute('aria-selected', String(o === b)); });
-        aplicar(b.dataset.aba);
+        desenhaHome(MES_ATUAL, b.dataset.aba);
       });
     });
-
-    aplicar('confirmado');
   })();
 })();
 </script>
