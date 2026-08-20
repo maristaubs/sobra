@@ -360,6 +360,15 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
 .cat-valor{font-size:12px;color:var(--ink-45);text-align:right;white-space:nowrap}
 
 /* ---------- reembolso ---------- */
+/* cofrinho: número grande e preto, micro-rótulo pequeno e cinza acima. Sem
+   ícone, porque cifrão e cofre genéricos estão fora da direção visual. */
+.cofre{padding:2px 0 4px}
+.cofre-valor{
+  font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.05;
+  margin-top:3px;font-variant-numeric:tabular-nums;
+}
+.cofre-valor .cifrao{font-size:.62em;font-weight:600;opacity:.5;margin-right:3px}
+
 .reemb{display:flex;align-items:center;gap:14px;padding:12px 0}
 .reemb + .reemb{border-top:1px solid var(--linha)}
 .reemb-valor{margin-left:auto;font-weight:700;font-size:17px;color:var(--malva-texto)}
@@ -726,6 +735,11 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
       <section class="card">
         <div class="card-cabecalho"><h2 class="card-titulo">por categoria</h2></div>
         <div id="h-categorias" style="display:contents"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-cabecalho"><h2 class="card-titulo">cofrinho</h2></div>
+        <div id="h-cofrinho" style="display:contents"></div>
       </section>
 
       <section class="card">
@@ -1148,6 +1162,9 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
     '2026-08': {
       rotulo: 'agosto', ano: 2026,
       renda: { previsto: 8240.00, recebido: 6940.00 },
+      /* O cofrinho é saldo feito de movimento: o acumulado até o mês anterior
+         mais o que entrou e saiu neste. Nunca uma coluna que alguém atualiza. */
+      cofrinho: { antes: 4120.00, movimentos: [ { tipo:'guardado', v:200.00, dia:8 } ] },
       lancamentos: [
       {d:'aluguel', v:1800.00, c:'moradia', cartao:'pix', dia:5},
       {d:'conta de luz', v:189.40, c:'moradia', cartao:'cartão azul', dia:8},
@@ -1236,8 +1253,19 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
       p.n += 1;
     });
 
+    var cof = m.cofrinho || { antes: 0, movimentos: [] };
+    var guardado = cof.movimentos.filter(function (x) { return x.tipo === 'guardado'; });
+    var saldoCofre = cof.movimentos.reduce(function (t, x) {
+      return t + (x.tipo === 'guardado' ? cent(x.v) : -cent(x.v));
+    }, cent(cof.antes)) / 100;
+
     return {
       mes: m,
+      cofrinho: {
+        saldo: saldoCofre,
+        guardadoNoMes: guardado.reduce(function (t, x) { return t + cent(x.v); }, 0) / 100,
+        houveMovimento: cof.movimentos.length > 0
+      },
       confirmado: confirmado,
       previsto: previsto,
       sobra: (cent(m.renda.previsto) - cent(confirmado) - cent(previsto)) / 100,
@@ -1366,6 +1394,18 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
                '<span class="cat-valor num"><span class="rs">R$</span>' + brl(c.valor) + '</span>' +
              '</div>';
     }).join('');
+
+    var cof = r.cofrinho;
+    document.getElementById('h-cofrinho').innerHTML =
+      '<div class="cofre">' +
+        '<p class="rot">saldo</p>' +
+        '<p class="cofre-valor num"><span class="cifrao">R$</span>' + brl(cof.saldo) + '</p>' +
+      '</div>' +
+      '<p class="rodape-card">' +
+        (cof.guardadoNoMes > 0
+          ? 'R$ ' + brl(cof.guardadoNoMes) + ' guardados em ' + esc(m.rotulo) + '.'
+          : 'nada guardado em ' + esc(m.rotulo) + ' ainda.') +
+      '</p>';
 
     document.getElementById('h-reembolso').innerHTML = r.reembolsos.map(function (pes) {
       var fatura = r.faturaCartao(pes.cartao);
