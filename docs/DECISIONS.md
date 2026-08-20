@@ -936,3 +936,63 @@ não pode significar nem que aconteceu nem que não aconteceu.
 - **Custo:** adiar mexe em `reference_month`, que até aqui era imutável depois de
   gravado. O gráfico de categorias do mês passado muda quando ela adia, o que é
   correto e ainda assim significa que um mês fechado não é mais imutável.
+
+---
+
+## ADR 0019, o login continua Google, e o Telegram é pareado por deep link
+
+**Data:** 2026-08-20
+**Status:** aceita, complementa a ADR 0004
+
+### Contexto
+
+O bot é a porta de entrada do dia a dia, então apareceu a pergunta de trocar o
+login do Google pelo próprio Telegram, para a pessoa ter uma conexão só em vez de
+duas.
+
+O Telegram não é provider do Supabase. Não está na lista. Virar login significa
+receber o payload assinado do Login Widget, validar o HMAC com o token do bot, e
+o Worker mesmo criar ou buscar o usuário e emitir a sessão. É autenticação
+escrita à mão, na parte de um sistema em que errar é mais caro que em qualquer
+outra.
+
+Do outro lado, o ganho é menor do que parece. O vínculo do Telegram não é um
+segundo login, é um pareamento que acontece uma vez na vida. A sessão do Google é
+longa, então na prática a pessoa loga uma vez e pareia uma vez, no mesmo
+onboarding em que já vai cadastrar cartão e renda.
+
+### Decisão
+
+**O login continua sendo Google, e a ADR 0004 fica de pé.**
+
+O Telegram é vinculado por deep link, que é o mecanismo documentado do Telegram
+para isso. No app, logada, ela pede para conectar. O app gera um token de uso
+único e abre `t.me/<bot>?start=<token>`. O Telegram entrega `/start <token>` ao
+Worker, que acha o token, grava o par `chat_id` e `user_id`, e queima o token.
+
+O token é de uso único, tem validade curta e é guardado com hash, nunca em texto.
+`chat_id` desconhecido é ignorado em silêncio, depois da validação do
+`secret_token` do header, que continua sendo a primeira coisa que o Worker faz.
+
+**O pareamento é um passo do onboarding**, logo depois dos cartões, e não um item
+escondido nas configurações. Assim não são duas conexões, é um fluxo só.
+
+### Consequência
+
+- Login continua sendo configuração no Supabase, sem uma linha de código de
+  autenticação, e o RLS continua saindo de `auth.uid()` sem intermediário.
+- Existe app sem Telegram. Perder o Telegram não é perder o acesso.
+- **Custo:** são duas coisas para conectar, ainda que cada uma aconteça uma vez.
+  Para quem só quer usar o bot, é um passo que não pediu.
+- **Custo:** o token de pareamento é um segredo novo, com uma janela em que ele
+  vale. Uso único e validade curta são o que segura isso, e os dois precisam
+  existir de fato.
+- **Custo:** ignorar `chat_id` desconhecido em silêncio é certo contra abuso e
+  ruim para diagnóstico. Pareamento que falhou parece bot morto, sem mensagem
+  nenhuma.
+- **Custo:** escolher Google **não** tira a service role key do Worker. Ele
+  resolve `chat_id` para usuário, o que cruza a fronteira do RLS, então a chave
+  elevada mora lá de qualquer jeito. O que esta decisão evita é emitir sessão,
+  não é guardar a chave.
+- **Custo:** a bridge que não foi construída também não foi aprendida. Se um dia
+  o Telegram virar login, o trabalho está inteiro esperando.

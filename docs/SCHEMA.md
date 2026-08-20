@@ -161,6 +161,22 @@ create table public.cards (
 create unique index cards_one_default
   on public.cards (user_id) where is_default;
 
+-- vínculo do Telegram: um chat por pessoa, uma pessoa por chat. Ver ADR 0019.
+create table public.telegram_links (
+  user_id   uuid primary key references auth.users (id) on delete cascade,
+  chat_id   bigint not null unique,
+  linked_at timestamptz not null default now()
+);
+
+-- token de pareamento, de uso único e vida curta. Guardado com hash, nunca em
+-- texto, e apagado ao ser usado.
+create table public.telegram_link_tokens (
+  token_hash text primary key,
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  expires_at timestamptz not null,
+  created_at timestamptz not null default now()
+);
+
 -- pessoas, para reembolso e dívida -------------------------------------------
 create table public.people (
   id         uuid primary key default gen_random_uuid(),

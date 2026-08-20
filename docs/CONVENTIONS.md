@@ -187,7 +187,9 @@ O front não recalcula regra de negócio. Ele lê view e desenha.
 ## O bot do Telegram
 
 Sempre nessa ordem, antes de qualquer outra coisa: valida o `secret_token` do
-header, valida o `chat_id`, e só então lê a mensagem.
+header, resolve o `chat_id` para uma pessoa em `telegram_links`, e só então lê a
+mensagem. `chat_id` sem vínculo é ignorado em silêncio. O vínculo é criado por
+deep link no onboarding, com token de uso único. Ver [ADR 0019](DECISIONS.md).
 
 Regras fixas do prompt:
 
