@@ -874,3 +874,65 @@ já aceita a data real (ADR 0015).
   isso na tela, esta ADR precisa de uma substituta e de uma tabela.
 - **Custo:** `amount_exact` é dela para marcar, e ninguém verifica. Marcar como
   fixo uma conta que varia faz o app confirmar sozinho um valor errado.
+
+---
+
+## ADR 0018, previsto não confirmado é resolvido no fechamento
+
+**Data:** 2026-08-20
+**Status:** aceita
+
+### Contexto
+
+Um `previsto` que ninguém confirma não tem fim. Ele fica parado no mês em que
+foi lançado, contando no número de previsto daquele mês para sempre, e meses
+passados vão acumulando gastos que nunca se resolveram. A tela mostra um mês
+fechado com um "ainda vai sair" que nunca saiu.
+
+Nada no modelo cuida disso. A ADR 0003 fixou dois status e nenhum dos dois quer
+dizer "não aconteceu".
+
+O momento de perguntar podia ser o fim do mês ou o fechamento da fatura. **O
+fechamento vem antes**, e é a diferença entre ela ainda conseguir fazer alguma
+coisa e só receber a notícia. Perguntar depois do mês fechado é contar um fato,
+perguntar no fechamento é dar uma escolha.
+
+### Decisão
+
+**No dia do fechamento, o bot manda uma mensagem só**, listando todo previsto
+cujo `due_date` já passou e que continua previsto. A regra não olha ciclo nem
+cartão, olha data vencida, então ela cobre também o previsto sem cartão, que não
+tem fatura nenhuma.
+
+Cada item da lista tem três saídas, e nenhuma delas inventa um status novo:
+
+- **confirmar**, que é `confirm_installment` e já existe (ADR 0015). Pode vir com
+  o valor real e com a data real.
+- **não aconteceu**, que apaga. `sobra_drop_installment` remove a parcela e, se
+  a entry ficar sem nenhuma, remove a entry junto. Um gasto que não aconteceu
+  não vira registro, vira ausência.
+- **adia**, que empurra `due_date` e `reference_month` um mês para frente, por
+  `sobra_postpone_installment`. Os dois andam juntos, porque adiar quer dizer
+  que o gasto vai acontecer no outro mês, e não que ele aconteceu neste e paga
+  no seguinte.
+
+Sem resposta, nada acontece e a lista volta no fechamento seguinte. O silêncio
+não pode significar nem que aconteceu nem que não aconteceu.
+
+### Consequência
+
+- Mês passado para de acumular previsto pendurado, e o número de previsto de um
+  mês fechado passa a querer dizer alguma coisa.
+- As três saídas cabem nos dois status da ADR 0003, então ela continua de pé.
+- **Custo:** é a primeira mensagem que o bot manda sem ela ter falado primeiro.
+  Isso exige agendamento no Worker, que a ADR 0011 tinha evitado de propósito ao
+  escolher estender recorrentes no boot do app em vez de por job. Esta ADR
+  reintroduz a necessidade de um agendador, e essa é a peça mais cara aqui.
+- **Custo:** mensagem não pedida é mensagem que cansa. Se num mês houver quinze
+  previstos vencidos, a lista fica longa e a chance de ela responder tudo cai.
+- **Custo:** `sobra_drop_installment` é a primeira coisa que apaga dado do
+  histórico, e apagar não tem desfazer. Um toque errado na lista perde o
+  lançamento.
+- **Custo:** adiar mexe em `reference_month`, que até aqui era imutável depois de
+  gravado. O gráfico de categorias do mês passado muda quando ela adia, o que é
+  correto e ainda assim significa que um mês fechado não é mais imutável.
