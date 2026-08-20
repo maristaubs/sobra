@@ -65,7 +65,10 @@ principal) e `agregado` (só o total da fatura interessa).
 ### `cards`
 Cartões e contas. `mode` define se o cartão é lançado item a item.
 `closing_day` e `due_day` são dia do mês, porque fechamento e vencimento não
-coincidem e a parcela de uma compra depois do fechamento cai um mês adiante.
+coincidem. Compra feita a partir do dia do fechamento entra na fatura seguinte, e
+fatura que vence antes do dia do fechamento vence no mês seguinte ao que ela
+fecha. Os dois deslocamentos mexem em `due_date` e não em `reference_month`.
+Ver [ADR 0014](DECISIONS.md). `closing_day` nulo quer dizer sem fechamento.
 
 ### `people`
 Pessoas envolvidas em reembolso e em dívida.
@@ -292,7 +295,40 @@ end $$;
 -- diretamente, senão a garantia de "N linhas, uma por mês" deixa de valer.
 -- ---------------------------------------------------------------------------
 
--- Em que dia o dinheiro sai, dado o cartão e o mês de vencimento.
+-- Quantos meses a fatura anda em relação ao mês da compra. Vale 0, 1 ou 2:
+-- +1 quando a compra é no dia do fechamento ou depois dele,
+-- +1 quando o cartão vence antes do dia em que fecha.
+-- Sem cartão, ou sem closing_day, não anda. Ver ADR 0014.
+create or replace function public.sobra_due_shift(
+  p_card_id       uuid,
+  p_purchase_date date
+) returns int
+language sql stable as $$
+  select coalesce((
+    select (case when c.closing_day is null
+                   or extract(day from p_purchase_date)::int < c.closing_day
+                 then 0 else 1 end)
+         + (case when c.closing_day is null or c.due_day is null
+                   or c.due_day >= c.closing_day
+                 then 0 else 1 end)
+      from public.cards c
+     where c.id = p_card_id
+  ), 0);
+$$;
+
+-- Em que mês cai a fatura de uma compra. Sempre dia 1.
+create or replace function public.sobra_due_month(
+  p_card_id       uuid,
+  p_purchase_date date
+) returns date
+language sql stable as $$
+  select (date_trunc('month', p_purchase_date)
+          + make_interval(months => public.sobra_due_shift(p_card_id, p_purchase_date)))::date;
+$$;
+
+-- Em que dia o dinheiro sai, dado o cartão e o mês da fatura. Encurta para o
+-- último dia quando o mês é mais curto que due_day. Quem chama já resolveu o
+-- deslocamento do fechamento com sobra_due_month.
 -- Sem cartão (pix, dinheiro), sai no dia da compra.
 create or replace function public.sobra_due_date(
   p_card_id  uuid,
@@ -302,11 +338,11 @@ create or replace function public.sobra_due_date(
 language sql stable as $$
   select case
     when p_card_id is null then p_fallback
-    else (
+    else coalesce((
       select p_month + (least(c.due_day, extract(day from (p_month + interval '1 month' - interval '1 day'))::int) - 1)
       from public.cards c
-      where c.id = p_card_id
-    )
+      where c.id = p_card_id and c.due_day is not null
+    ), p_fallback)
   end;
 $$;
 
@@ -336,8 +372,10 @@ declare
   v_n         int;
   v_base      numeric(12,2);
   v_last    numeric(12,2);
-  v_month_one    date;
-  v_month       date;
+  v_ref_one    date;   -- primeiro reference_month, o mês da compra
+  v_due_one    date;   -- mês da primeira fatura, já com o fechamento aplicado
+  v_month      date;   -- reference_month da parcela da vez
+  v_due        date;   -- mês de fatura da parcela da vez
   v_amount     numeric(12,2);
   i           int;
 begin
@@ -355,7 +393,12 @@ begin
     p_reimburser_id, p_ends_on, p_notes, p_source
   ) returning id into v_entry;
 
-  v_month_one := coalesce(p_first_due_month, date_trunc('month', p_purchase_date)::date);
+  -- Dois trilhos: a competência anda pelo mês da compra, a fatura anda pelo
+  -- fechamento do cartão. Ver ADR 0014. p_first_due_month, quando vem
+  -- preenchido, manda no trilho da fatura e não no da competência.
+  v_ref_one := date_trunc('month', p_purchase_date)::date;
+  v_due_one := coalesce(p_first_due_month,
+                        public.sobra_due_month(p_card_id, p_purchase_date));
 
   if p_type = 'parcelado' then
     -- N parcelas, uma por mês, valor dividido com a última absorvendo o resto
@@ -364,31 +407,32 @@ begin
     v_last := p_total_amount - (v_base * (v_n - 1));
 
     for i in 1 .. v_n loop
-      v_month   := (v_month_one + make_interval(months => i - 1))::date;
+      v_due    := (v_due_one + make_interval(months => i - 1))::date;
       v_amount := case when i = v_n then v_last else v_base end;
 
       insert into public.installments (
         user_id, entry_id, number, amount, reference_month, due_date, status, confirmed_at
       ) values (
         v_user, v_entry, i, v_amount,
-        date_trunc('month', p_purchase_date)::date,
-        public.sobra_due_date(p_card_id, v_month, p_purchase_date + ((i - 1) * interval '1 month')::interval),
-        case when v_month = v_month_one then p_status else 'previsto' end,
-        case when v_month = v_month_one and p_status = 'confirmado' then now() else null end
+        v_ref_one,
+        public.sobra_due_date(p_card_id, v_due, (p_purchase_date + ((i - 1) * interval '1 month'))::date),
+        case when i = 1 then p_status else 'previsto' end,
+        case when i = 1 and p_status = 'confirmado' then now() else null end
       );
     end loop;
 
   elsif p_type = 'recorrente' then
     -- horizonte rolante: materializa p_horizon_months meses à frente
     for i in 1 .. p_horizon_months loop
-      v_month := (v_month_one + make_interval(months => i - 1))::date;
+      v_month := (v_ref_one + make_interval(months => i - 1))::date;
+      v_due   := (v_due_one + make_interval(months => i - 1))::date;
       exit when p_ends_on is not null and v_month > date_trunc('month', p_ends_on)::date;
 
       insert into public.installments (
         user_id, entry_id, number, amount, reference_month, due_date, status, confirmed_at
       ) values (
         v_user, v_entry, i, p_total_amount, v_month,
-        public.sobra_due_date(p_card_id, v_month, (v_month + (extract(day from p_purchase_date)::int - 1))),
+        public.sobra_due_date(p_card_id, v_due, (v_month + (extract(day from p_purchase_date)::int - 1))),
         case when i = 1 then p_status else 'previsto' end,
         case when i = 1 and p_status = 'confirmado' then now() else null end
       );
@@ -400,8 +444,8 @@ begin
       user_id, entry_id, number, amount, reference_month, due_date, status, confirmed_at
     ) values (
       v_user, v_entry, 1, p_total_amount,
-      date_trunc('month', p_purchase_date)::date,
-      public.sobra_due_date(p_card_id, v_month_one, p_purchase_date),
+      v_ref_one,
+      public.sobra_due_date(p_card_id, v_due_one, p_purchase_date),
       p_status,
       case when p_status = 'confirmado' then now() else null end
     );
@@ -421,7 +465,8 @@ language plpgsql security definer set search_path = public as $$
 declare
   r        record;
   v_limit date := (date_trunc('month', current_date) + make_interval(months => p_horizon_months))::date;
-  v_next   date;
+  v_next   date;   -- reference_month da próxima linha
+  v_shift  int;    -- distância fixa entre competência e fatura, ADR 0014
   v_num    int;
   v_created int := 0;
 begin
@@ -435,8 +480,9 @@ begin
       and (e.ends_on is null or e.ends_on >= current_date)
     group by e.id
   loop
-    v_next := (r.last_month + interval '1 month')::date;
-    v_num  := r.ultimo_num;
+    v_next  := (r.last_month + interval '1 month')::date;
+    v_num   := r.ultimo_num;
+    v_shift := public.sobra_due_shift(r.card_id, r.purchase_date);
 
     while v_next <= v_limit
       and (r.ends_on is null or v_next <= date_trunc('month', r.ends_on)::date)
@@ -446,7 +492,9 @@ begin
         user_id, entry_id, number, amount, reference_month, due_date, status
       ) values (
         r.user_id, r.id, v_num, r.total_amount, v_next,
-        public.sobra_due_date(r.card_id, v_next, (v_next + (extract(day from r.purchase_date)::int - 1))),
+        public.sobra_due_date(r.card_id,
+                              (v_next + make_interval(months => v_shift))::date,
+                              (v_next + (extract(day from r.purchase_date)::int - 1))),
         'previsto'
       );
       v_created := v_created + 1;

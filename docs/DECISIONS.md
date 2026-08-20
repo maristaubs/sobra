@@ -578,3 +578,80 @@ português, e ele carrega um glossário dos termos que aparecem nas telas.
   dia o app precisar de outro idioma, os valores gravados no banco continuam
   `previsto` e `confirmado`, e a tradução vira responsabilidade da camada de
   interface. Para um app de uma pessoa só, é um custo que não chega.
+
+---
+
+## ADR 0014, o fechamento do cartão desloca a data de saída, nunca o mês de competência
+
+**Data:** 2026-08-20
+**Status:** aceita
+
+### Contexto
+
+`closing_day` existia em `cards` desde o primeiro desenho e nenhuma linha de
+código a lia. `sobra_due_date` montava o vencimento com `due_day` só, sempre
+dentro do mês da compra.
+
+Isso não é um erro de arredondamento, é um mês inteiro de diferença. Num cartão
+que fecha dia 2 e vence dia 7, quase toda compra do mês pertence à fatura que
+fecha no dia 2 do mês seguinte. Uma compra de 15 de setembro recebia vencimento
+em 7 de setembro, uma data anterior à própria compra.
+
+São dois deslocamentos distintos, e a versão anterior tratava os dois como
+nenhum:
+
+1. **Compra a partir do dia do fechamento entra na fatura seguinte.** Fecha dia
+   2, compra no dia 2 de setembro, fatura que fecha em 2 de outubro.
+2. **Vencimento anterior ao fechamento vence no mês seguinte ao que a fatura
+   fecha.** Fecha dia 25 e vence dia 5: a fatura que fecha em 25 de agosto vence
+   em 5 de setembro. Quando o vencimento é posterior ao fechamento, como fecha 2
+   e vence 7, os dois caem no mesmo mês.
+
+A alternativa considerada foi pedir a data de saída digitada a cada lançamento.
+Ela foi recusada porque obriga ela a fazer a conta de cabeça toda vez, e o ponto
+do app é justamente ela não precisar.
+
+### Decisão
+
+**O fechamento desloca `due_date`, e nunca `reference_month`.** A compra
+aconteceu no mês em que aconteceu, só o dinheiro sai depois. O gráfico de
+categorias, que agrupa por `reference_month`, não muda. A home, que agrupa por
+`due_date`, passa a acertar o mês.
+
+O deslocamento vira uma função, `sobra_due_shift`, que vale 0, 1 ou 2 meses, e
+uma função de conveniência `sobra_due_month`. `sobra_due_date` continua fazendo
+uma coisa só: colocar `due_day` dentro de um mês já resolvido, encurtando para o
+último dia quando o mês é mais curto que o dia.
+
+A comparação com o fechamento é `>=`, então **a compra feita no próprio dia do
+fechamento já é da fatura seguinte**.
+
+`closing_day` nulo quer dizer sem fechamento, deslocamento zero, e `due_day` nulo
+quer dizer que o dinheiro sai no dia da compra. Juntos, os dois nulos descrevem
+débito e dinheiro, e um cartão cadastrado pela metade cai no comportamento mais
+conservador em vez de inventar o último dia do mês.
+
+Em parcelado, as N parcelas andam juntas a partir do mês da primeira fatura, e
+as N carregam o mesmo `reference_month`, o mês da compra. Em recorrente,
+`reference_month` e mês de fatura andam em trilhos paralelos, com a distância
+fixa que `sobra_due_shift` devolveu.
+
+### Consequência
+
+- A home passa a mostrar a compra no mês em que o dinheiro sai de verdade, que é
+  a única promessa que ela faz (ADR 0008).
+- O gráfico de categorias continua contando a compra no mês em que ela
+  aconteceu, sem toggle e sem exceção.
+- **Custo:** o cadastro de cartão passa a ter dois números que precisam estar
+  certos, e um deles ela vai ter que procurar na fatura. `closing_day` errado
+  desloca todas as compras do fim do mês, em silêncio e sem erro na tela.
+- **Custo:** mudar `closing_day` depois não recalcula o que já foi gravado. As
+  parcelas existentes ficam com a data antiga, porque nada escreve em
+  `installments` fora de `create_entry_with_installments` (ADR 0002). Corrigir um
+  cartão cadastrado errado é apagar e relançar.
+- **Custo:** num cartão com vencimento antes do fechamento, o deslocamento vale
+  2, e uma compra de agosto aparece vencendo em outubro. Está certo, e parece
+  defeito para quem olha sem a regra ao lado.
+- **Custo:** a regra `>=` não é universal entre emissores. Alguns colocam a
+  compra do próprio dia do fechamento ainda na fatura que fecha. Se aparecer um
+  cartão assim, ele vai precisar de uma coluna, e esta ADR de uma substituta.
