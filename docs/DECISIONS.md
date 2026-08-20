@@ -1217,3 +1217,53 @@ desistir mais cedo.
   não é aumentar `outros`, é abrir a edição de categoria, que está fora do v1.
 - **Custo:** `outros` fora do aprendizado significa que o mesmo gasto sem encaixe
   vai ser perguntado toda vez. É proposital, e é chato.
+
+---
+
+## ADR 0024, previsto certo e previsto estimado são iguais na tela
+
+**Data:** 2026-08-20
+**Status:** aceita, fecha a pendência aberta pela ADR 0017
+
+### Contexto
+
+A ADR 0017 criou `amount_exact`, o recorrente de valor fixo que confirma sozinho,
+e deixou uma pendência: a tela hachura todo `previsto` como se fosse estimativa,
+e aluguel é previsto sem ser estimativa nenhuma.
+
+Olhando o mockup, a premissa estava errada. **A hachura não existe por
+lançamento.** Ela aparece em quatro lugares, todos de bloco: o quadradinho da
+legenda ao lado do número previsto, o segmento previsto da barra da home, o
+segmento programado da barra de próximos meses, e as cápsulas de parcelamento.
+Nenhuma linha da lista de lançamentos é hachurada.
+
+Marcar a diferença exigiria, portanto, **criar hachura por linha onde hoje não
+existe nenhuma**, e não aproveitar uma que já estava lá.
+
+Do outro lado, o hábito de quem usa já cobre o risco: ela arredonda estimativa
+para cima na hora de lançar. Um aviso de "esse número ainda pode se mexer" avisa
+sobre um risco que já foi pago no lançamento, e o desvio, quando vem, vem a
+favor.
+
+### Decisão
+
+**`amount_exact` é dado, não é desenho.** Ele existe para a autoconfirmação da
+ADR 0017 e não aparece em lugar nenhum da interface.
+
+A hachura continua querendo dizer `previsto`, o bloco, e continua só nos quatro
+lugares em que já está. Nenhuma linha de lançamento ganha hachura. Aluguel e luz
+são idênticos na tela, e os dois estão igualmente descontados da sobra, que é o
+que importa.
+
+### Consequência
+
+- A pendência fecha sem código, sem desenho e sem uma quarta coisa para a tela
+  explicar.
+- Aluguel e luz continuam ambos visivelmente comprometidos, que era a
+  preocupação de verdade.
+- **Custo:** olhando a home não dá para saber quanto do previsto ainda pode se
+  mexer. Quem responde isso é o hábito de arredondar para cima, que mora fora do
+  app e não é garantido por nada.
+- **Custo:** `amount_exact` vira um campo que só o backend enxerga. Marcado
+  errado, nada na tela denuncia, e o único sintoma é uma conta se confirmando
+  sozinha quando não devia.
