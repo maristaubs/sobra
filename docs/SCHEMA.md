@@ -63,7 +63,9 @@ principal) e `agregado` (só o total da fatura interessa).
 ## Campos por tabela
 
 ### `cards`
-Cartões e contas. `mode` define se o cartão é lançado item a item.
+Cartões e contas, cadastrados por ela na tela de configurações. `mode` define se
+o cartão é lançado item a item, e `is_default` marca o que o bot assume quando
+ela não diz qual, no máximo um por pessoa.
 `closing_day` e `due_day` são dia do mês, porque fechamento e vencimento não
 coincidem. Compra feita a partir do dia do fechamento entra na fatura seguinte, e
 fatura que vence antes do dia do fechamento vence no mês seguinte ao que ela
@@ -146,11 +148,18 @@ create table public.cards (
     check (closing_confirmed_month is null
            or extract(day from closing_confirmed_month) = 1),
   color       text,
+  -- o cartão que entra quando ela não diz qual. Um por pessoa, garantido pelo
+  -- índice parcial abaixo. Ver ADR 0013 para o idioma do nome.
+  is_default  boolean not null default false,
   position    smallint not null default 0,
   archived_at timestamptz,
   created_at  timestamptz not null default now(),
   unique (user_id, name)
 );
+
+-- no máximo um cartão padrão por pessoa
+create unique index cards_one_default
+  on public.cards (user_id) where is_default;
 
 -- pessoas, para reembolso e dívida -------------------------------------------
 create table public.people (
