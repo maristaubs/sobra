@@ -54,6 +54,7 @@ Estas palavras têm significado exato e não podem ser trocadas por sinônimo.
 | **reference_month** | quando o gasto aconteceu, sempre dia 1 |
 | **due_date** | quando o dinheiro sai |
 | **sobra** | renda prevista menos tudo que sai no mês |
+| **cofrinho** | dinheiro guardado. Não é gasto, então fica fora do gráfico de categorias. Saldo por soma, ver [ADR 0025](DECISIONS.md) |
 | **reembolso** | gasto de outra pessoa que passou no cartão dela |
 | **dívida** | dinheiro que ela pegou emprestado de uma pessoa. Módulo separado, não é um `type` |
 
@@ -94,6 +95,12 @@ quarto ou um terceiro sem uma ADR.
   maior dos dois, renda ou gasto. Passando da renda, o segmento de sobra deixa de
   existir, a renda vira marca vertical com rótulo escrito, e o trecho depois dela
   ganha hachura vinho. Ver [ADR 0012](DECISIONS.md) .
+- **O cofrinho fica na coluna da direita, logo acima do "a receber de volta".**
+  Os dois são saldo, então a coluna vira o lugar dos saldos. Ele mostra o total
+  guardado e quanto foi guardado no mês, nessa ordem.
+- **A sobra que veio do mês anterior não é escrita em lugar nenhum.** Ela já está
+  dentro do número da sobra, e o alto do card continua carregando só a renda
+  prevista. Ver [ADR 0025](DECISIONS.md).
 - **Lançamento é linha, não card.** Ícone circular colorido por categoria à
   esquerda, descrição e valor na mesma linha.
 - **Lançamento é o que já aconteceu.** O card tem duas abas exclusivas, e elas são
@@ -202,6 +209,13 @@ O front não recalcula regra de negócio. Ele lê view e desenha.
 
 ## O bot do Telegram
 
+**O que é raro e estruturado vai na tela, o que é frequente e solto vai na
+mensagem.** Cartão, renda e cofrinho se cadastram uma vez e mudam pouco, então
+moram nas configurações. Lançamento acontece dezenas de vezes por mês, e digitar
+formulário no celular é o atrito que mata app de finanças. **A tela nunca é
+obrigatória:** faltando um cadastro, o bot cria propondo e esperando confirmação,
+como já faz com pessoa, e a tela continua sendo o lugar de ver e corrigir.
+
 Sempre nessa ordem, antes de qualquer outra coisa: valida o `secret_token` do
 header, resolve o `chat_id` para uma pessoa em `telegram_links`, e só então lê a
 mensagem. `chat_id` sem vínculo é ignorado em silêncio. O vínculo é criado por
@@ -217,6 +231,16 @@ Regras fixas do prompt:
   Brasília. Data escrita na mensagem manda: "gastei 40 no cartão dia 12" grava
   dia 12. Ver [ADR 0015](DECISIONS.md).
 - **Previsto sem dia é só o mês**, e o bot não inventa um dia para ele.
+- **"recebi", "caiu" e "entrou" são entrada, não gasto.** Vira linha em
+  `incomes`. Sem recorrência dita, é avulsa e confirmada no dia. **Entrada
+  variável nunca é estimada antes de cair**, senão a sobra promete dinheiro que
+  pode não vir.
+- **Em pix, débito e dinheiro, pergunta de onde saiu**, conta ou cofrinho, com
+  `conta` como padrão. Em cartão de crédito não pergunta, porque quem paga é a
+  fatura. Ver [ADR 0025](DECISIONS.md).
+- **No fim do mês, depois das contas pagas, pergunta quanto vai para o
+  cofrinho**, com o valor editável, porque esse é também o momento de conferir a
+  conta.
 - **No dia em que o cartão fecha, a confirmação carrega um botão
   `ainda não fechou`.** O padrão continua sendo a fatura seguinte, o botão é a
   saída. Ele só aparece quando o dia da compra é o `closing_day` daquele cartão,
