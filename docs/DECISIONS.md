@@ -1050,3 +1050,66 @@ Editar, renomear e fundir categoria ficam fora do v1.
 - **Custo:** categoria nova não tem ícone, e a direção visual pede ícone em toda
   categoria e proíbe cifrão e cofre genéricos. Fica em aberto de propósito, e é
   decisão de tela.
+
+---
+
+## ADR 0021, a lista de categorias é fechada, com quinze
+
+**Data:** 2026-08-20
+**Status:** aceita, substitui a ADR 0020
+
+### Contexto
+
+A ADR 0020 deixou o bot criar categoria conforme o gasto aparecia, e declarou
+como custo em aberto que categoria criada assim não tem ícone. Esse custo não
+tinha saída barata.
+
+Ícone é a única coisa da linha que não se gera por regra. Cor se gera girando o
+matiz, nome vem do modelo, ícone é desenho. E a direção visual pede ícone de
+traço fino em toda categoria e proíbe cifrão e cofre genéricos, então nem o
+atalho existe.
+
+Sobravam duas saídas. Embarcar uma biblioteca de uns quarenta ícones para o bot
+escolher dentro dela, o que significa desenhar quarenta para usar quinze, num
+projeto que precisa terminar. Ou fechar a lista.
+
+### Decisão
+
+**Quinze categorias, fechadas, cada uma com ícone e cor escolhidos a dedo:**
+moradia, mercado, restaurantes, transporte, saúde, pet, casa e objetos, roupas e
+beleza, assinaturas, lazer, educação, viagem, presentes, impostos e dívidas.
+
+`mercado` e `restaurantes` ficam separadas de propósito. São os dois gastos mais
+diferentes que existem, um é necessidade e o outro é escolha, e juntar os dois
+numa `alimentação` apagaria a pergunta mais útil que o gráfico responde.
+
+**O bot escolhe dentro da lista e nunca cria.** Não encaixando em nenhuma, ele
+pergunta qual, em vez de propor uma nova. **Não existe categoria `outros`**, e
+essa ausência é proposital: pedido de `outros` é sinal de que falta categoria na
+lista, não de que falta a linha.
+
+Pessoa de reembolso e de dívida continuam sendo propostas pelo bot no uso, como a
+ADR 0020 decidiu, porque nome de pessoa não precisa de ícone.
+
+A paleta cresce de treze para quinze cores, com `lazer` em `#83A8AF` e `educação`
+em `#7D7A9C`. Editar, renomear e criar categoria ficam fora do v1.
+
+### Consequência
+
+- Toda categoria nasce com ícone e cor feitos à mão, e a direção visual fica
+  inteira, sem exceção e sem ícone genérico.
+- Some a deriva de nome que a ADR 0020 tinha como risco principal. O gráfico
+  compara mês com mês sem chance de o conjunto mudar embaixo dele.
+- O prompt do bot fica menor, porque a lista é fixa e cabe nele sem depender de
+  consulta.
+- **Custo:** gasto que não encaixa em nenhuma das quinze é empurrado para a mais
+  próxima, e isso é pior que deriva, porque erra sem deixar rastro. Quinze é uma
+  aposta de que a lista é larga o bastante, e ela só se verifica no uso.
+- **Custo:** lista fixa continua sendo a lista de outra pessoa para quem não é
+  ela. Era o motivo da ADR 0020 e não deixou de ser verdade, só virou um custo
+  aceito em vez de um problema resolvido.
+- **Custo:** com quinze cores, alguns tons ficam perto. `educação` e `roupas e
+  beleza` são as duas arroxeadas, e `lazer` e `transporte` são os dois
+  azul-esverdeados. Quem separa na tela é o ícone e o nome, que a convenção já
+  exige sempre.
+- **Custo:** sem edição no v1, quem não gosta de uma categoria convive com ela.

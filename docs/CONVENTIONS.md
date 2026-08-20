@@ -82,7 +82,7 @@ quarto ou um terceiro sem uma ADR.
   junto, em tom mais claro e peso menor, sem separador: `agosto 2026`.
 - **A home é sempre por `due_date`.** Sem toggle de competência e caixa em lugar
   nenhum. A única visão por data da compra é o gráfico de categorias.
-  Ver [ADR 0008](DECISIONS.md), e a pendência 4 em Estado do projeto.
+  Ver [ADR 0008](DECISIONS.md), e a pendência 3 em Estado do projeto.
 - **Três números no topo da home, não um:** confirmado, previsto, sobra.
 - **Nenhum dos três leva nota embaixo do valor.** A tela inteira já é o mês, então
   contagem de lançamento e porcentagem ali são ruído.
@@ -170,11 +170,11 @@ superfícies   creme  #F7F3EE    branco  #FFFDFC    linha  #EDE6DD
 tinta         #1A1613   #5C534B   #8D847A   #B4ABA1
 marca         #B0779E   texto #7A4A68   suave #F0E4EC
 dados         positivo #4F7A5E   negativo #8C3A46   previsto #9A9189
-categorias    #7E94A8 moradia        #8FA68E mercado      #B0779E saúde
-              #C08573 pet            #C9A46A restaurantes #9A8FB0 roupas e beleza
-              #B7A88F casa e objetos #8A93A0 assinaturas  #6E9490 transporte
-              #C48B8B presentes      #8FA9C0 viagem       #9E6B72 dívidas
-              #9C9186 impostos
+categorias    #7E94A8 moradia        #8FA68E mercado      #C9A46A restaurantes
+  (quinze,    #6E9490 transporte     #B0779E saúde        #C08573 pet
+   fechadas)  #B7A88F casa e objetos #9A8FB0 roupas e bel #8A93A0 assinaturas
+              #83A8AF lazer          #7D7A9C educação     #8FA9C0 viagem
+              #C48B8B presentes      #9C9186 impostos     #9E6B72 dívidas
 ```
 
 Confirmado em preto. Previsto em cinza médio ou hachurado (a hachura é o marcador
@@ -220,10 +220,11 @@ Regras fixas do prompt:
   Ver [ADR 0016](DECISIONS.md).
 - "pet", "gato" e "gatu" são todos a categoria pet.
 - Nome de remédio e de consulta é saúde.
-- **Categoria que não existe é proposta, nunca criada em silêncio.** A lista das
-  que já existem vai junto no prompt, para ele encaixar em vez de inventar
-  sinônimo. Vale igual para pessoa de reembolso e de dívida. Ver
-  [ADR 0020](DECISIONS.md).
+- **Categoria só sai da lista fechada de quinze, e o bot nunca cria uma nova.**
+  Não encaixando em nenhuma, pergunta qual. Não existe `outros`. Ver
+  [ADR 0021](DECISIONS.md).
+- **Pessoa de reembolso e de dívida, essa sim, é proposta pelo bot** no primeiro
+  lançamento que precisar dela, e nunca criada em silêncio.
 - Faltando informação, pergunta. Nunca chuta. A data é a única exceção, porque
   ela tem um padrão que acerta quase sempre.
 
@@ -327,27 +328,24 @@ Nada aqui trava mais a migration. O que faltava do modelo foi decidido nas ADR
    | renda prevista | está escrita no topo da home e não se cadastra em lugar nenhum. É o furo maior |
    | telegram | conectar e desconectar, por deep link. Ver ADR 0019 |
    | pessoas | joão, ana e bia. Criadas pelo bot no uso, editáveis aqui |
-   | categorias | criadas pelo bot no uso. Editar e fundir ficam fora do v1, ver ADR 0020 |
+   | categorias | as quinze são fixas, ver ADR 0021. Nada a configurar no v1 |
    | conta | e-mail do Google, sair, apagar conta e dados |
 
-2. **Categoria criada pelo bot não tem ícone.** A direção visual pede ícone em
-   toda categoria e proíbe cifrão e cofre genéricos, e a paleta tem treze cores
-   para um conjunto que agora cresce sem limite. Ver ADR 0020.
-3. **`previsto` fixo ainda é hachurado como se fosse estimativa.** A ADR 0017
+2. **`previsto` fixo ainda é hachurado como se fosse estimativa.** A ADR 0017
    criou o previsto de valor certo, e a ADR 0012 e a direção visual dizem que a
    hachura marca estimativa. Ou a hachura muda de significado, ou o previsto
    certo ganha um segundo tratamento. É decisão de tela.
-4. **A tela do mês não existe ainda.** O "ver mais" do card de lançamentos leva
+3. **A tela do mês não existe ainda.** O "ver mais" do card de lançamentos leva
    para uma tela própria em largura cheia, com os lançamentos do mês inteiro,
    busca e filtro por categoria e por cartão. Decidido, ainda não desenhado. A
    home não estende a lista no lugar, justamente para as duas colunas continuarem
    terminando na mesma linha.
-5. **Falta imagem no topo do README.** Fica para o fim da fase de telas, quando
+4. **Falta imagem no topo do README.** Fica para o fim da fase de telas, quando
    existirem home, login e as outras páginas prontas. É o item de maior impacto
    isolado num repositório de portfólio, então não pode ser esquecido.
-6. **Falta publicar a demo.** O mockup é estático e cabe na Cloudflare Pages, com
+5. **Falta publicar a demo.** O mockup é estático e cabe na Cloudflare Pages, com
    o link no topo do README. Também fica para o fim, junto com a imagem.
-7. **A ADR 0008 exige que a visão por data da compra leve rótulo escrito por
+6. **A ADR 0008 exige que a visão por data da compra leve rótulo escrito por
    extenso, e esse rótulo saiu da tela.** O texto era um rodapé no card de
    categorias e foi recusado na revisão. Ou o rótulo volta em outra forma, ou a
    ADR 0008 precisa de uma nova que a substitua nesse ponto.
