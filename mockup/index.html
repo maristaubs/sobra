@@ -450,6 +450,22 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
 /* ---------- navegação inferior, celular ---------- */
 .nav-baixo{display:none}
 
+/* ---------- aviso de controle sem tela ----------
+   O mockup tem botões que ainda não levam a lugar nenhum. Sem isso eles
+   parecem quebrados, e num repositório de portfólio parecer quebrado custa
+   mais caro que admitir que a tela não existe. */
+.aviso{
+  position:fixed;left:50%;bottom:28px;transform:translate(-50%,12px);
+  z-index:50;pointer-events:none;
+  padding:11px 20px;border-radius:999px;
+  background:var(--ink);color:#FCF9F6;
+  font-size:13.5px;font-weight:500;letter-spacing:.01em;
+  box-shadow:0 6px 20px rgba(26,22,19,.18);
+  opacity:0;transition:opacity .18s ease,transform .18s ease;
+}
+.aviso.ativo{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){.aviso{transition:none}}
+
 /* ---------- parcelamentos, cápsula no eixo de mês ----------
    Uma forma por compra, com um corte por parcela. O peso é invertido de
    propósito: o que já foi pago apaga para creme e o que ainda falta escurece,
@@ -652,7 +668,7 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
   </nav>
 
   <div class="topo-fim">
-    <button class="btn-novo"><svg><use href="#i-mais"/></svg>novo lançamento</button>
+    <button class="btn-novo" data-sem-tela="a tela de novo lançamento ainda não existe"><svg><use href="#i-mais"/></svg>novo lançamento</button>
     <div class="avatar" aria-hidden="true">M</div>
   </div>
 </header>
@@ -664,9 +680,9 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
 
   <div class="cabecalho">
     <div class="tit-seletor">
-      <button aria-label="Mês anterior"><svg><use href="#i-esq"/></svg></button>
+      <button aria-label="Mês anterior" data-sem-tela="mockup estático, só agosto de 2026 tem dados"><svg><use href="#i-esq"/></svg></button>
       <h1 class="titulo">agosto <span class="ano">2026</span></h1>
-      <button aria-label="Próximo mês"><svg><use href="#i-dir"/></svg></button>
+      <button aria-label="Próximo mês" data-sem-tela="mockup estático, só agosto de 2026 tem dados"><svg><use href="#i-dir"/></svg></button>
     </div>
   </div>
 
@@ -824,7 +840,7 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
           </li>
         </ul>
 
-        <a class="ver-tudo" href="#" id="ver-tudo-lista">ver mais</a>
+        <a class="ver-tudo" href="#" id="ver-tudo-lista" data-sem-tela="a tela do mês ainda não existe">ver mais</a>
       </section>
     </div>
 
@@ -1311,8 +1327,10 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
   <button data-ir="home" aria-current="true"><svg><use href="#i-casa"/></svg>este mês</button>
   <button data-ir="proximos"><svg><use href="#i-barras"/></svg>próximos</button>
   <button data-ir="dividas"><svg><use href="#i-pessoas"/></svg>dívidas</button>
-  <button class="novo"><span class="circulo"><svg><use href="#i-mais"/></svg></span>novo</button>
+  <button class="novo" data-sem-tela="a tela de novo lançamento ainda não existe"><span class="circulo"><svg><use href="#i-mais"/></svg></span>novo</button>
 </nav>
+
+<div class="aviso" id="aviso" role="status" aria-live="polite"></div>
 
 <script>
 /* Mockup estático. O único comportamento aqui é trocar de tela e abrir
@@ -1333,6 +1351,21 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
   botoes.forEach(function (b) {
     b.addEventListener('click', function () { ir(b.dataset.ir); });
   });
+
+  /* Controle que ainda não tem tela: avisa em vez de não fazer nada. */
+  (function () {
+    var aviso = document.getElementById('aviso');
+    var timer;
+    document.querySelectorAll('[data-sem-tela]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        aviso.textContent = el.dataset.semTela;
+        aviso.classList.add('ativo');
+        clearTimeout(timer);
+        timer = setTimeout(function () { aviso.classList.remove('ativo'); }, 2600);
+      });
+    });
+  })();
 
   document.querySelectorAll('.mes-linha').forEach(function (linha) {
     linha.addEventListener('click', function () {
@@ -1355,7 +1388,6 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 1
     var abas = document.querySelectorAll('.ab-titulo button');
     if (!abas.length) return;
     var lista = document.querySelector('#home .lista');
-    var verTudo = document.getElementById('ver-tudo-lista');
 
 
     function aplicar(tipo) {
