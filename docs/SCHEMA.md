@@ -81,8 +81,9 @@ Ver [ADR 0016](DECISIONS.md).
 Pessoas envolvidas em reembolso e em dívida.
 
 ### `categories`
-Nome, cor e ícone. Quinze, fechadas, criadas no seed. O bot escolhe dentro delas
-e nunca cria uma nova. Ver [ADR 0021](DECISIONS.md).
+Nome, cor e ícone. Quinze, fechadas, mais `outros`, criadas no seed. O bot
+escolhe dentro delas e nunca cria uma nova, e só chega em `outros` depois de
+perguntar. Ver [ADR 0021](DECISIONS.md) e [ADR 0023](DECISIONS.md).
 
 ### `entries`
 A compra ou a conta. `amount_exact` separa a conta fixa, cujo valor já é o valor
@@ -769,7 +770,8 @@ language sql security definer set search_path = public as $$
     (p_user, 'viagem',          '#8FA9C0', 'viagem',       12),
     (p_user, 'presentes',       '#C48B8B', 'presentes',    13),
     (p_user, 'impostos',        '#9C9186', 'impostos',     14),
-    (p_user, 'dívidas',         '#9E6B72', 'dividas',      15)
+    (p_user, 'dívidas',         '#9E6B72', 'dividas',      15),
+    (p_user, 'outros',          '#ADA49B', 'outros',       16)
   on conflict (user_id, name) do nothing;
 $$;
 ```

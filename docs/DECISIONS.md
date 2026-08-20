@@ -1168,3 +1168,52 @@ coisa.
 - **Custo:** a busca por descrição igual acerta `uber` e erra `uber aeroporto`. É
   de propósito, porque casar parecido sem o modelo é como a deriva volta pela
   porta dos fundos.
+
+---
+
+## ADR 0023, existe uma categoria `outros`
+
+**Data:** 2026-08-20
+**Status:** aceita, altera a ADR 0021 no ponto de não existir `outros`
+
+### Contexto
+
+A ADR 0021 fechou a lista em quinze e recusou `outros` de propósito, com o
+argumento de que pedido de `outros` é sinal de que falta categoria. O argumento
+está certo e a conclusão estava errada, porque ele ignora o que acontece enquanto
+a categoria que falta não existe.
+
+Lista fechada e sem edição no v1 significa que um gasto sem encaixe não tem para
+onde ir. As saídas eram empurrar para a categoria mais próxima ou perguntar até
+ela escolher uma. **As duas gravam uma classificação errada e não deixam rastro
+de que foi um chute.** O gráfico passa a mentir com aparência de certeza, que é
+pior do que admitir que não sabe.
+
+### Decisão
+
+**Existe `outros`, com cor `#ADA49B` e ícone de três pontos.** A cor é neutra e
+sem tom próprio de propósito, porque `outros` não é um assunto, é a ausência de
+um.
+
+**`outros` nunca é a escolha automática.** O bot só chega nela depois de perguntar
+e ela dizer que nenhuma serve. Ele nunca oferece `outros` como primeira resposta,
+e a lista de quinze continua sendo por onde ele tenta primeiro.
+
+`outros` fica fora do aprendizado da ADR 0022. Descrição classificada como
+`outros` não vira precedente, porque precedente de "não sei" ensina o bot a
+desistir mais cedo.
+
+### Consequência
+
+- Gasto sem encaixe fica visivelmente sem encaixe, em vez de virar um número
+  errado dentro de uma categoria de verdade.
+- `outros` crescendo no gráfico é informação: quer dizer que falta categoria na
+  lista, e agora isso aparece na tela em vez de sumir espalhado.
+- **Custo:** é a categoria mais fácil de escolher, então é a que atrai o
+  cansaço. `outros` grande não significa que a lista está errada, pode só
+  significar que ela estava com pressa.
+- **Custo:** a lista foi de quinze para dezesseis, e a ADR 0021 tinha acabado de
+  argumentar que quinze bastava. Se `outros` ficar grande de verdade, o conserto
+  não é aumentar `outros`, é abrir a edição de categoria, que está fora do v1.
+- **Custo:** `outros` fora do aprendizado significa que o mesmo gasto sem encaixe
+  vai ser perguntado toda vez. É proposital, e é chato.

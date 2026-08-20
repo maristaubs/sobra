@@ -175,6 +175,7 @@ categorias    #7E94A8 moradia        #8FA68E mercado      #C9A46A restaurantes
    fechadas)  #B7A88F casa e objetos #9A8FB0 roupas e bel #8A93A0 assinaturas
               #83A8AF lazer          #7D7A9C educação     #8FA9C0 viagem
               #C48B8B presentes      #9C9186 impostos     #9E6B72 dívidas
+              #ADA49B outros, neutra de propósito, ver ADR 0023
 ```
 
 Confirmado em preto. Previsto em cinza médio ou hachurado (a hachura é o marcador
@@ -221,8 +222,13 @@ Regras fixas do prompt:
 - "pet", "gato" e "gatu" são todos a categoria pet.
 - Nome de remédio e de consulta é saúde.
 - **Categoria só sai da lista fechada de quinze, e o bot nunca cria uma nova.**
-  Não encaixando em nenhuma, pergunta qual. Não existe `outros`. Ver
-  [ADR 0021](DECISIONS.md).
+  Ver [ADR 0021](DECISIONS.md).
+- **`outros` existe e nunca é a escolha automática.** O bot tenta as quinze,
+  pergunta, e só cai em `outros` se ela disser que nenhuma serve. Ver
+  [ADR 0023](DECISIONS.md).
+- **Categoria repetida não passa pelo modelo, e descrição nova leva o histórico
+  dela junto no prompt.** `outros` fica fora desse aprendizado, porque precedente
+  de "não sei" ensina o bot a desistir cedo. Ver [ADR 0022](DECISIONS.md).
 - **Pessoa de reembolso e de dívida, essa sim, é proposta pelo bot** no primeiro
   lançamento que precisar dela, e nunca criada em silêncio.
 - Faltando informação, pergunta. Nunca chuta. A data é a única exceção, porque
