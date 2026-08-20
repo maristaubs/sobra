@@ -1113,3 +1113,58 @@ em `#7D7A9C`. Editar, renomear e criar categoria ficam fora do v1.
   azul-esverdeados. Quem separa na tela é o ícone e o nome, que a convenção já
   exige sempre.
 - **Custo:** sem edição no v1, quem não gosta de uma categoria convive com ela.
+
+---
+
+## ADR 0022, a categoria é aprendida do histórico dela
+
+**Data:** 2026-08-20
+**Status:** aceita
+
+### Contexto
+
+Com a lista fechada (ADR 0021) o bot escolhe entre quinze, e não encaixando ele
+pergunta. Só que ele pergunta de novo a cada mensagem parecida, porque cada
+mensagem chega sem passado. Lançar `comida da marie` pela terceira vez e ser
+perguntada pela terceira vez é o app não aprender nada sobre quem usa ele.
+
+O dado para aprender já existe e não precisa de tabela nova: `entries` guarda a
+descrição e a categoria de tudo que ela já lançou.
+
+### Decisão
+
+**Duas camadas, a barata primeiro.**
+
+**Descrição repetida não passa pelo modelo.** Antes de chamar a API, o Worker
+procura em `entries` uma descrição igual, normalizada em minúscula e sem acento.
+Achando, a categoria vem de lá, determinística, sem chute e sem custo.
+
+**Descrição nova vai ao modelo com o passado junto.** O prompt leva os pares de
+descrição e categoria mais usados dela, umas quarenta linhas. Assim ele
+generaliza pela palavra e não pela frase inteira: tendo visto `comida da marie`
+como pet duas vezes, ele acerta `vacina da marie` e `areia da marie` sem nunca
+ter visto nenhuma das duas.
+
+**A confirmação continua existindo.** O que muda não é ela confirmar menos vezes,
+é ela confirmar menos coisa: a categoria já vem preenchida e ela só olha. Estando
+errada, corrigir grava a correção em `entries`, que é a mesma fonte que alimenta
+o aprendizado. O conserto é automático porque a memória e o histórico são a mesma
+coisa.
+
+### Consequência
+
+- Nenhuma tabela nova, nenhuma migration, nenhum estado paralelo para
+  desincronizar. A memória do bot é o histórico dela.
+- Corrigir uma vez conserta para sempre, sem tela de configuração de regra.
+- O custo em API é desprezível: quarenta linhas de histórico são uns 400 tokens
+  de entrada, menos de um décimo de centavo de dólar por lançamento. E a
+  descrição repetida nem chega ao modelo, então na média o custo cai.
+- **Custo:** aprendizado errado se repete até ela reparar. Se `marie` for
+  classificada como mercado uma vez e ela confirmar sem olhar, o erro vira
+  precedente e se propaga sozinho.
+- **Custo:** os quarenta pares mais usados são um recorte, e recorte esconde.
+  Gasto raro e antigo cai fora da janela e volta a ser perguntado, o que lê como
+  o bot ter esquecido.
+- **Custo:** a busca por descrição igual acerta `uber` e erra `uber aeroporto`. É
+  de propósito, porque casar parecido sem o modelo é como a deriva volta pela
+  porta dos fundos.
