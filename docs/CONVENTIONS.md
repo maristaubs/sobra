@@ -197,12 +197,19 @@ Regras fixas do prompt:
   Brasília. Data escrita na mensagem manda: "gastei 40 no cartão dia 12" grava
   dia 12. Ver [ADR 0015](DECISIONS.md).
 - **Previsto sem dia é só o mês**, e o bot não inventa um dia para ele.
+- **No dia em que o cartão fecha, a confirmação carrega um botão
+  `ainda não fechou`.** O padrão continua sendo a fatura seguinte, o botão é a
+  saída. Ele só aparece quando o dia da compra é o `closing_day` daquele cartão,
+  e some pelo resto do mês assim que ela confirmar um lançamento sem tocar nele.
+  Ver [ADR 0016](DECISIONS.md).
 - "pet", "gato" e "gatu" são todos a categoria pet.
 - Nome de remédio e de consulta é saúde.
 - Faltando informação, pergunta. Nunca chuta. A data é a única exceção, porque
   ela tem um padrão que acerta quase sempre.
 
-Sempre responde com o que entendeu e pede confirmação antes de gravar. Para
+Sempre responde com o que entendeu e pede confirmação antes de gravar, e a data
+de saída aparece escrita nessa confirmação sempre que existe cartão, porque ela é
+a informação que a pessoa não consegue calcular de cabeça. Para
 confirmar um previsto, procura entre os previstos abertos do mês e, havendo
 ambiguidade, lista as opções com botão.
 

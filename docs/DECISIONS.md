@@ -733,3 +733,78 @@ não existe.
   `installments` fora de `create_entry_with_installments` (ADR 0002).
 - **Custo:** o fuso fica escrito no schema. Mudar de país passa a exigir
   migration, e não é configuração.
+
+---
+
+## ADR 0016, o dia do fechamento é o único dia que ela decide
+
+**Data:** 2026-08-20
+**Status:** aceita, complementa a ADR 0014
+
+### Contexto
+
+A ADR 0014 fixou que compra a partir do dia do fechamento entra na fatura
+seguinte, com a comparação em `>=`. Isso é verdade no dia 3 em diante e é
+verdade até o dia 1. **No próprio dia do fechamento não é verdade nem falso**, é
+uma questão de hora: a fatura fecha num instante do dia, e a compra da manhã pode
+estar dentro dela enquanto a da noite já não está.
+
+O erro de errar esse dia não é pequeno. Ele desloca a compra em um mês inteiro na
+home, que é a tela que responde quanto sobra. E é justamente o dia em que o
+sistema tem menos informação, porque a hora do fechamento não está em lugar
+nenhum e varia por emissor.
+
+O prompt do bot já diz "faltando informação, pergunta, nunca chuta". O dia do
+fechamento é o único dia do mês em que a informação falta de verdade.
+
+A alternativa considerada foi guardar a hora do fechamento no cartão e decidir
+pela hora da mensagem. Ela foi recusada porque essa hora não é publicada, ela
+mudaria de emissor para emissor, e o resultado seria um chute com aparência de
+regra.
+
+### Decisão
+
+**A pergunta não é uma pergunta, é um botão na confirmação que já existe.** O bot
+já responde com o que entendeu e espera confirmação antes de gravar. No dia do
+fechamento, essa mesma resposta carrega a data de saída calculada e um botão
+`ainda não fechou`. Nenhuma volta a mais na conversa, e nenhuma pergunta no
+caminho normal.
+
+O padrão continua sendo o da ADR 0014, fatura seguinte. O botão é a saída, não a
+entrada. Tocar nele tira o deslocamento daquele lançamento e a compra fica na
+fatura que está fechando.
+
+**Depois de ela dizer uma vez que já fechou, o mês inteiro para de perguntar.** A
+confirmação normal, sem tocar no botão, é essa resposta. `cards` ganha
+`closing_confirmed_month`, o mês do ciclo em que ela confirmou o fechamento, e
+enquanto ele for o ciclo corrente o botão não aparece mais naquele cartão. Dizer
+`ainda não fechou` não grava nada, então o botão volta no próximo gasto do mesmo
+dia, que é exatamente o que se quer: pode ter fechado no meio.
+
+O botão só existe quando o dia da compra é igual ao `closing_day` do cartão. Fora
+disso não há ambiguidade e não há escolha a oferecer. Isso vale também para
+lançamento retroativo: uma compra do dia 2 informada no dia 5 recebe o mesmo
+botão, se o mês ainda não foi confirmado.
+
+O estado é por cartão, porque dois cartões que fecham no mesmo dia não fecham na
+mesma hora.
+
+### Consequência
+
+- O único dia ambíguo do mês passa a ser decidido por quem tem como saber, e nos
+  outros vinte e nove nada muda e nada é perguntado.
+- A ADR 0014 continua valendo inteira. Esta ADR só acrescenta uma saída no dia do
+  fechamento, e por isso não substitui aquela.
+- **Custo:** ela pode não saber a resposta. Saber se a fatura fechou às duas da
+  tarde do dia 2 pode exigir abrir o app do banco, e nesse caso o chute só mudou
+  de dono, com um toque a mais. O botão ser opcional é o que segura isso: ignorar
+  o botão é responder o padrão.
+- **Custo:** resposta errada não se conserta. Mover um lançamento de uma fatura
+  para outra não existe no app, e a correção é apagar e relançar.
+- **Custo:** com dois cartões fechando no mesmo dia, o botão pode aparecer duas
+  vezes no dia 2, uma por cartão.
+- **Custo:** depois de confirmado o mês, um lançamento retroativo daquele mesmo
+  dia 2 entra no padrão sem oferecer o botão, mesmo que aquela compra específica
+  tenha sido antes do fechamento.
+- **Custo:** `closing_confirmed_month` é estado de conversa morando numa tabela
+  de cadastro. Ele não significa nada para o front, que nunca lê essa coluna.

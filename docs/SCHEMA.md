@@ -70,6 +70,11 @@ fatura que vence antes do dia do fechamento vence no mês seguinte ao que ela
 fecha. Os dois deslocamentos mexem em `due_date` e não em `reference_month`.
 Ver [ADR 0014](DECISIONS.md). `closing_day` nulo quer dizer sem fechamento.
 
+No próprio dia do fechamento a regra não decide sozinha, porque a fatura fecha
+numa hora do dia que ninguém publica. Aí quem decide é ela, por um botão na
+confirmação do bot, e `closing_confirmed_month` guarda o mês já respondido.
+Ver [ADR 0016](DECISIONS.md).
+
 ### `people`
 Pessoas envolvidas em reembolso e em dívida.
 
@@ -132,6 +137,12 @@ create table public.cards (
   mode        card_mode not null default 'detalhado',
   closing_day smallint check (closing_day between 1 and 31),
   due_day     smallint check (due_day     between 1 and 31),
+  -- mês do ciclo em que ela já confirmou que a fatura fechou, sempre dia 1.
+  -- Enquanto for o ciclo corrente, o bot para de oferecer a saída do dia do
+  -- fechamento. Só o bot escreve, o front nunca lê. Ver ADR 0016.
+  closing_confirmed_month date
+    check (closing_confirmed_month is null
+           or extract(day from closing_confirmed_month) = 1),
   color       text,
   position    smallint not null default 0,
   archived_at timestamptz,
@@ -312,14 +323,21 @@ $$;
 -- +1 quando a compra é no dia do fechamento ou depois dele,
 -- +1 quando o cartão vence antes do dia em que fecha.
 -- Sem cartão, ou sem closing_day, não anda. Ver ADR 0014.
+--
+-- p_before_closing é a saída do dia do fechamento, e só tem efeito quando a
+-- compra é no próprio dia em que o cartão fecha, porque é o único dia ambíguo
+-- do mês. Ver ADR 0016.
 create or replace function public.sobra_due_shift(
-  p_card_id       uuid,
-  p_purchase_date date
+  p_card_id        uuid,
+  p_purchase_date  date,
+  p_before_closing boolean default false
 ) returns int
 language sql stable as $$
   select coalesce((
     select (case when c.closing_day is null
                    or extract(day from p_purchase_date)::int < c.closing_day
+                   or (p_before_closing
+                       and extract(day from p_purchase_date)::int = c.closing_day)
                  then 0 else 1 end)
          + (case when c.closing_day is null or c.due_day is null
                    or c.due_day >= c.closing_day
@@ -331,12 +349,14 @@ $$;
 
 -- Em que mês cai a fatura de uma compra. Sempre dia 1.
 create or replace function public.sobra_due_month(
-  p_card_id       uuid,
-  p_purchase_date date
+  p_card_id        uuid,
+  p_purchase_date  date,
+  p_before_closing boolean default false
 ) returns date
 language sql stable as $$
   select (date_trunc('month', p_purchase_date)
-          + make_interval(months => public.sobra_due_shift(p_card_id, p_purchase_date)))::date;
+          + make_interval(months => public.sobra_due_shift(p_card_id, p_purchase_date,
+                                                           p_before_closing)))::date;
 $$;
 
 -- Em que dia o dinheiro sai, dado o cartão e o mês da fatura. Encurta para o
@@ -378,6 +398,7 @@ create or replace function public.create_entry_with_installments(
   p_status             installment_status default 'previsto',
   p_first_due_month    date     default null,
   p_due_day_exact      boolean  default true,
+  p_before_closing     boolean  default false,
   p_ends_on            date     default null,
   p_horizon_months     int      default 12,
   p_notes              text     default null,
@@ -420,7 +441,8 @@ begin
   -- inexato fica no mês que ela nomeou. Ver ADR 0015.
   v_due_one := coalesce(p_first_due_month,
                         case when p_due_day_exact
-                             then public.sobra_due_month(p_card_id, p_purchase_date)
+                             then public.sobra_due_month(p_card_id, p_purchase_date,
+                                                         p_before_closing)
                              else v_ref_one end);
 
   if p_type = 'parcelado' then
