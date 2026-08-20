@@ -229,9 +229,10 @@ create table public.entries (
   -- aluguel. Recorrente assim confirma sozinho no vencimento. Ver ADR 0017.
   amount_exact       boolean not null default false,
   notes              text,
-  -- de onde saiu o dinheiro, que é outra coisa de por onde ele passou. Gasto
-  -- pago pelo cofrinho não reduz a sobra do mês, reduz o saldo do cofrinho, e
-  -- continua contando no gráfico de categorias. Ver ADR 0025.
+  -- de onde saiu o dinheiro, que é outra coisa de por onde ele passou. Só vale
+  -- para quem paga no ato, que é pix, débito e dinheiro, os três o mesmo caso.
+  -- Gasto pago pelo cofrinho não reduz a sobra do mês, reduz o saldo do
+  -- cofrinho, e continua contando no gráfico de categorias. Ver ADR 0025.
   funded_by          funding_source not null default 'conta',
   source             text not null default 'app'
                      check (source in ('app', 'telegram', 'import')),

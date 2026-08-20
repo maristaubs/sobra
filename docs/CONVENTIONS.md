@@ -235,9 +235,10 @@ Regras fixas do prompt:
   `incomes`. Sem recorrência dita, é avulsa e confirmada no dia. **Entrada
   variável nunca é estimada antes de cair**, senão a sobra promete dinheiro que
   pode não vir.
-- **Em pix, débito e dinheiro, pergunta de onde saiu**, conta ou cofrinho, com
-  `conta` como padrão. Em cartão de crédito não pergunta, porque quem paga é a
-  fatura. Ver [ADR 0025](DECISIONS.md).
+- **Pagou no ato, pergunta de onde saiu**, conta ou cofrinho, com `conta` como
+  padrão. Pix, débito e dinheiro são o mesmo caso: o dinheiro sai na hora. Cartão
+  de crédito não pergunta, porque quem paga é a fatura, e a fatura sai da conta.
+  Ver [ADR 0025](DECISIONS.md).
 - **No fim do mês, depois das contas pagas, pergunta quanto vai para o
   cofrinho**, com o valor editável, porque esse é também o momento de conferir a
   conta.
