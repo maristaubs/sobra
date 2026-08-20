@@ -82,7 +82,9 @@ Pessoas envolvidas em reembolso e em dívida.
 Nome, cor e ícone. Treze categorias iniciais, listadas no seed.
 
 ### `entries`
-A compra ou a conta. `card_id` é nullable, porque pix e dinheiro não têm cartão.
+A compra ou a conta. `amount_exact` separa a conta fixa, cujo valor já é o valor
+final, da conta que varia e cujo valor futuro é chute. Ver
+[ADR 0017](DECISIONS.md). `card_id` é nullable, porque pix e dinheiro não têm cartão.
 `reimburser_id` é nullable e, quando preenchido, quer dizer que o gasto passou no
 cartão dela mas é de outra pessoa. `installments_total` é 1 para tudo que não é
 parcelado.
@@ -185,6 +187,9 @@ create table public.entries (
   reimburser_id      uuid references public.people (id) on delete set null,
   -- só para recorrente: null quer dizer sem fim definido
   ends_on            date,
+  -- true quer dizer que o valor não é estimativa, é o mesmo todo mês, como
+  -- aluguel. Recorrente assim confirma sozinho no vencimento. Ver ADR 0017.
+  amount_exact       boolean not null default false,
   notes              text,
   source             text not null default 'app'
                      check (source in ('app', 'telegram', 'import')),
@@ -580,6 +585,31 @@ language sql security invoker as $$
    where id = p_installment_id
      and user_id = (select auth.uid());
 $$;
+
+-- Confirma sozinho o recorrente de valor exato que já venceu. Não existe chute
+-- a resolver nele, então pedir confirmação seria pedir um toque para não mudar
+-- número nenhum. Nunca confirma para frente. Ver ADR 0017.
+-- Roda no mesmo boot em que sobra_extend_recurring roda, sem job (ADR 0011).
+create or replace function public.sobra_confirm_fixed()
+returns int
+language plpgsql security invoker as $$
+declare
+  v_count int;
+begin
+  update public.installments i
+     set status       = 'confirmado',
+         confirmed_at = now()
+    from public.entries e
+   where e.id = i.entry_id
+     and e.type = 'recorrente'
+     and e.amount_exact
+     and i.status = 'previsto'
+     and i.due_date <= public.sobra_today()
+     and i.user_id = (select auth.uid());
+
+  get diagnostics v_count = row_count;
+  return v_count;
+end $$;
 ```
 
 ### `supabase/migrations/0004_views.sql`

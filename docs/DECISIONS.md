@@ -808,3 +808,69 @@ mesma hora.
   tenha sido antes do fechamento.
 - **Custo:** `closing_confirmed_month` é estado de conversa morando numa tabela
   de cadastro. Ele não significa nada para o front, que nunca lê essa coluna.
+
+---
+
+## ADR 0017, gasto fixo confirma sozinho, e a fatura do cartão não é confirmada
+
+**Data:** 2026-08-20
+**Status:** aceita
+
+### Contexto
+
+Recorrente nasce `previsto` e é materializado meses à frente (ADR 0003 e ADR
+0011). Confirmar um por um significa, todo mês, uma dezena de toques que não
+mudam número nenhum na tela, porque o valor já estava certo antes de ela tocar.
+
+A ADR 0003 embrulhou três coisas na mesma palavra: `previsto` é o que vai
+acontecer, o que ainda não aconteceu, e o que tem valor estimado. Para o aluguel
+do mês que vem as duas primeiras valem e a terceira não. O aluguel é R$ 2.000 e
+vai ser R$ 2.000. O embrulho não se sustenta, e o que gera trabalho é justamente
+a terceira.
+
+Do outro lado apareceu a pergunta oposta, a do cartão, que não está em débito
+automático. Ela paga a fatura no dia 7 e queria avisar o bot, ou ser lembrada. Só
+que os lançamentos daquela fatura já são `confirmado` desde a compra, porque o
+valor deles é real desde a compra. Marcar a fatura como paga não muda nenhum dos
+três números do topo, nem o gráfico, nem a sobra. É registro que não vira tela.
+
+### Decisão
+
+**O critério de `confirmado` é o valor ser real, e não o dinheiro ter saído.** É
+o que a ADR 0003 já dizia, e as duas perguntas se resolvem por ele em direções
+opostas.
+
+`entries` ganha `amount_exact`. Quando é `true`, o valor não é estimativa, é o
+mesmo todo mês. **Recorrente com `amount_exact` confirma sozinho ao vencer**, por
+`sobra_confirm_fixed()`, que roda no mesmo boot do `sobra_extend_recurring` e
+nunca confirma para frente. Aluguel, DAS e assinatura param de pedir toque. Luz e
+mercado continuam pedindo, porque ali o valor futuro é chute de verdade e
+confirmar é o momento em que o chute vira número.
+
+**A fatura do cartão não ganha estado de paga.** Nenhum `card_payments`, nenhum
+booleano. O que ela quer não é um registro, é não esquecer de pagar no dia 7, e
+isso é lembrete, que mora no Worker e não no schema.
+
+Ela não estar em débito automático não muda nada disso. O dia em que ela paga um
+gasto de valor fixo não altera a sobra do mês, altera só debaixo de qual
+cabeçalho de dia a linha aparece. Quando ela avisar a data, `confirm_installment`
+já aceita a data real (ADR 0015).
+
+### Consequência
+
+- A rotina mensal cai para as contas que variam de verdade, que são poucas.
+- Não entra tabela nova, não entra terceiro estado, e a ADR 0003 continua com
+  dois valores.
+- **Custo:** um recorrente fixo que ela parou de pagar continua se confirmando
+  sozinho para sempre. Quem corrige é `ends_on`, e lembrar de preencher `ends_on`
+  é dela. É o único jeito de o app afirmar um gasto que não aconteceu.
+- **Custo:** passa a existir `previsto` que não é estimativa, e a tela ainda
+  hachura todo `previsto` como se fosse (ADR 0012, e CONVENTIONS diz que a
+  hachura é o marcador de estimativa). Ou a hachura muda de significado, ou
+  aparece um segundo tratamento para o previsto certo. Fica em aberto de
+  propósito, porque é decisão de tela e não de modelo.
+- **Custo:** ficar sem registro de pagamento de fatura quer dizer que o app nunca
+  vai saber responder se ela pagou. Se um dia ela pagar atrasada e quiser ver
+  isso na tela, esta ADR precisa de uma substituta e de uma tabela.
+- **Custo:** `amount_exact` é dela para marcar, e ninguém verifica. Marcar como
+  fixo uma conta que varia faz o app confirmar sozinho um valor errado.
