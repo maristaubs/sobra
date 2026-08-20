@@ -82,7 +82,7 @@ quarto ou um terceiro sem uma ADR.
   junto, em tom mais claro e peso menor, sem separador: `agosto 2026`.
 - **A home é sempre por `due_date`.** Sem toggle de competência e caixa em lugar
   nenhum. A única visão por data da compra é o gráfico de categorias.
-  Ver [ADR 0008](DECISIONS.md), e a pendência 3 em Estado do projeto.
+  Ver [ADR 0008](DECISIONS.md), e a pendência 4 em Estado do projeto.
 - **Três números no topo da home, não um:** confirmado, previsto, sobra.
 - **Nenhum dos três leva nota embaixo do valor.** A tela inteira já é o mês, então
   contagem de lançamento e porcentagem ali são ruído.
@@ -135,6 +135,18 @@ quarto ou um terceiro sem uma ADR.
 - **Lista de lançamento não tem linha entre os itens.** Quem agrupa é o cabeçalho
   de dia mais o espaço em branco. Com dia de um item só, o traço aparecia em uns e
   não em outros, e o padrão furado lia como defeito.
+- **O onboarding tem três passos, nessa ordem: cartões, renda prevista,
+  Telegram.** Cartão primeiro porque é o único que muda a conta, já que sem
+  `closing_day` a ADR 0014 fica sem entrada e sem cartão padrão o bot pergunta
+  qual é a cada lançamento. Renda em seguida porque é ela que faz a sobra
+  existir. **Telegram por último porque é o único passo que tira a pessoa do
+  app**, e quem sai no meio de um fluxo pode não voltar.
+- **Pessoa e categoria não entram no onboarding.** Ninguém sabe responder quem
+  vai lhe dever dinheiro antes de usar o app. As duas nascem propostas pelo bot
+  no primeiro lançamento que precisar delas. Ver [ADR 0020](DECISIONS.md).
+- **Nenhum passo do onboarding é obrigatório, e todos moram também nas
+  configurações.** Pulando, a tela diz o que deixa de funcionar, em vez de
+  travar.
 - **Todo valor monetário usa `font-variant-numeric: tabular-nums`.**
 - **A cor nunca é o único identificador.** Categoria sempre tem cor, ícone e nome.
 
@@ -305,25 +317,37 @@ backend, autenticação nem banco.
 Nada aqui trava mais a migration. O que faltava do modelo foi decidido nas ADR
 0014 a 0017. O que sobrou é tela e portfólio.
 
-1. **A tela de configurações não existe.** Ela precisa no mínimo do cadastro de
-   cartões, com nome, dia de fechamento, dia de vencimento e a marca de cartão
-   padrão. Sem ela, `closing_day` e `is_default` não têm por onde ser
-   preenchidos, e as ADR 0014 e 0016 ficam sem entrada de dado.
-2. **`previsto` fixo ainda é hachurado como se fosse estimativa.** A ADR 0017
+1. **A tela de configurações não existe, nem o onboarding.** A ordem dos passos
+   está decidida em Regras de interface, o desenho não. O que ela precisa
+   guardar, levantado pelas tabelas que hoje não têm porta de entrada nenhuma:
+
+   | O quê | Por que precisa |
+   | --- | --- |
+   | cartões | nome, fechamento, vencimento, padrão, detalhado ou agregado, cor, arquivar. Sem isso as ADR 0014 e 0016 ficam sem entrada de dado |
+   | renda prevista | está escrita no topo da home e não se cadastra em lugar nenhum. É o furo maior |
+   | telegram | conectar e desconectar, por deep link. Ver ADR 0019 |
+   | pessoas | joão, ana e bia. Criadas pelo bot no uso, editáveis aqui |
+   | categorias | criadas pelo bot no uso. Editar e fundir ficam fora do v1, ver ADR 0020 |
+   | conta | e-mail do Google, sair, apagar conta e dados |
+
+2. **Categoria criada pelo bot não tem ícone.** A direção visual pede ícone em
+   toda categoria e proíbe cifrão e cofre genéricos, e a paleta tem treze cores
+   para um conjunto que agora cresce sem limite. Ver ADR 0020.
+3. **`previsto` fixo ainda é hachurado como se fosse estimativa.** A ADR 0017
    criou o previsto de valor certo, e a ADR 0012 e a direção visual dizem que a
    hachura marca estimativa. Ou a hachura muda de significado, ou o previsto
    certo ganha um segundo tratamento. É decisão de tela.
-3. **A tela do mês não existe ainda.** O "ver mais" do card de lançamentos leva
+4. **A tela do mês não existe ainda.** O "ver mais" do card de lançamentos leva
    para uma tela própria em largura cheia, com os lançamentos do mês inteiro,
    busca e filtro por categoria e por cartão. Decidido, ainda não desenhado. A
    home não estende a lista no lugar, justamente para as duas colunas continuarem
    terminando na mesma linha.
-4. **Falta imagem no topo do README.** Fica para o fim da fase de telas, quando
+5. **Falta imagem no topo do README.** Fica para o fim da fase de telas, quando
    existirem home, login e as outras páginas prontas. É o item de maior impacto
    isolado num repositório de portfólio, então não pode ser esquecido.
-5. **Falta publicar a demo.** O mockup é estático e cabe na Cloudflare Pages, com
+6. **Falta publicar a demo.** O mockup é estático e cabe na Cloudflare Pages, com
    o link no topo do README. Também fica para o fim, junto com a imagem.
-6. **A ADR 0008 exige que a visão por data da compra leve rótulo escrito por
+7. **A ADR 0008 exige que a visão por data da compra leve rótulo escrito por
    extenso, e esse rótulo saiu da tela.** O texto era um rodapé no card de
    categorias e foi recusado na revisão. Ou o rótulo volta em outra forma, ou a
    ADR 0008 precisa de uma nova que a substitua nesse ponto.
