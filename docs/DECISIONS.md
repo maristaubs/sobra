@@ -1002,7 +1002,7 @@ escondido nas configurações. Assim não são duas conexões, é um fluxo só.
 ## ADR 0020, categoria é proposta pelo bot, não é lista fixa
 
 **Data:** 2026-08-20
-**Status:** aceita, substitui a ADR 0003 em nada, altera só o seed
+**Status:** aceita
 
 ### Contexto
 
