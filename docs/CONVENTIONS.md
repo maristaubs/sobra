@@ -208,6 +208,10 @@ Regras fixas do prompt:
   Ver [ADR 0016](DECISIONS.md).
 - "pet", "gato" e "gatu" são todos a categoria pet.
 - Nome de remédio e de consulta é saúde.
+- **Categoria que não existe é proposta, nunca criada em silêncio.** A lista das
+  que já existem vai junto no prompt, para ele encaixar em vez de inventar
+  sinônimo. Vale igual para pessoa de reembolso e de dívida. Ver
+  [ADR 0020](DECISIONS.md).
 - Faltando informação, pergunta. Nunca chuta. A data é a única exceção, porque
   ela tem um padrão que acerta quase sempre.
 

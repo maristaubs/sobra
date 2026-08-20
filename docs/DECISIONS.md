@@ -996,3 +996,57 @@ escondido nas configurações. Assim não são duas conexões, é um fluxo só.
   não é guardar a chave.
 - **Custo:** a bridge que não foi construída também não foi aprendida. Se um dia
   o Telegram virar login, o trabalho está inteiro esperando.
+
+---
+
+## ADR 0020, categoria é proposta pelo bot, não é lista fixa
+
+**Data:** 2026-08-20
+**Status:** aceita, substitui a ADR 0003 em nada, altera só o seed
+
+### Contexto
+
+O seed criava treze categorias fixas para todo mundo. Isso presume que o gasto de
+uma pessoa se parece com o de outra, e a primeira coisa que aparece quando alguém
+começa a usar é uma lista com metade das linhas vazias e a categoria que ela
+realmente usa faltando.
+
+O risco de deixar o bot criar não é criar demais. É **deriva de nome**: escrever
+`mercado` num mês e `supermercado` no outro. O gráfico de categorias existe para
+comparar mês com mês, e conjunto instável quebra exatamente isso, em silêncio e
+sem parecer defeito.
+
+### Decisão
+
+**O seed encolhe para seis**, as que valem para praticamente qualquer pessoa:
+moradia, mercado, transporte, saúde, restaurantes e dívidas. Dívidas entra porque
+o módulo de dívida depende dela.
+
+**O bot propõe o resto, e nunca cria em silêncio.** Não encaixando em nenhuma
+existente, ele diz qual categoria pretende criar e espera confirmação, que é a
+regra que o prompt dele já tem. Toda proposta leva junto a lista do que já
+existe, para ele encaixar em vez de inventar sinônimo.
+
+**Cor sai da paleta por rodízio**, sempre a primeira ainda não usada, então
+categoria nova nunca nasce sem cor nem repetindo uma que está em uso.
+
+Editar, renomear e fundir categoria ficam fora do v1.
+
+### Consequência
+
+- A primeira tela de quem começa mostra o gasto dela, e não um formulário de
+  categorias de outra pessoa.
+- O custo em API é desprezível: a lista de categorias no prompt são uns duzentos
+  tokens de entrada por lançamento, e a proposta sai na mesma resposta que o bot
+  já ia mandar, sem uma volta a mais.
+- **Custo:** a deriva continua possível. Se ela aceitar `supermercado` sem
+  reparar que `mercado` existe, o gráfico racha e nada avisa. O que segura é a
+  lista ir junto no prompt, e isso depende do modelo prestar atenção nela.
+- **Custo:** sem edição no v1, categoria criada errada fica errada. A saída é
+  apagar o lançamento e refazer, o que é pior que renomear.
+- **Custo:** a paleta tem treze cores. Passando de treze categorias, a cor
+  repete. Salva o fato de a cor nunca ser o único identificador, já que ícone e
+  nome estão sempre lá, mas o gráfico fica pior de ler.
+- **Custo:** categoria nova não tem ícone, e a direção visual pede ícone em toda
+  categoria e proíbe cifrão e cofre genéricos. Fica em aberto de propósito, e é
+  decisão de tela.

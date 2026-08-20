@@ -81,7 +81,8 @@ Ver [ADR 0016](DECISIONS.md).
 Pessoas envolvidas em reembolso e em dívida.
 
 ### `categories`
-Nome, cor e ícone. Treze categorias iniciais, listadas no seed.
+Nome, cor e ícone. Seis no seed, e o resto é proposto pelo bot conforme o gasto
+aparece, nunca criado em silêncio. Ver [ADR 0020](DECISIONS.md).
 
 ### `entries`
 A compra ou a conta. `amount_exact` separa a conta fixa, cujo valor já é o valor
@@ -754,19 +755,12 @@ returns void
 language sql security definer set search_path = public as $$
   insert into public.categories (user_id, name, color, icon, position)
   values
-    (p_user, 'moradia',         '#7E94A8', 'moradia',      1),
-    (p_user, 'mercado',         '#8FA68E', 'mercado',      2),
-    (p_user, 'saúde',           '#B0779E', 'saude',        3),
-    (p_user, 'Pet',             '#C08573', 'pet',          4),
-    (p_user, 'restaurantes',    '#C9A46A', 'restaurantes', 5),
-    (p_user, 'roupas e beleza', '#9A8FB0', 'roupas',       6),
-    (p_user, 'casa e objetos',  '#B7A88F', 'casa',         7),
-    (p_user, 'assinaturas',     '#8A93A0', 'assinaturas',  8),
-    (p_user, 'transporte',      '#6E9490', 'transporte',   9),
-    (p_user, 'presentes',       '#C48B8B', 'presentes',   10),
-    (p_user, 'viagem',          '#8FA9C0', 'viagem',      11),
-    (p_user, 'dívidas',         '#9E6B72', 'dividas',     12),
-    (p_user, 'impostos',        '#9C9186', 'impostos',    13)
+    (p_user, 'moradia',      '#7E94A8', 'moradia',      1),
+    (p_user, 'mercado',      '#8FA68E', 'mercado',      2),
+    (p_user, 'transporte',   '#6E9490', 'transporte',   3),
+    (p_user, 'saúde',        '#B0779E', 'saude',        4),
+    (p_user, 'restaurantes', '#C9A46A', 'restaurantes', 5),
+    (p_user, 'dívidas',      '#9E6B72', 'dividas',      6)
   on conflict (user_id, name) do nothing;
 $$;
 ```
