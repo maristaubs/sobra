@@ -1267,3 +1267,69 @@ que importa.
 - **Custo:** `amount_exact` vira um campo que só o backend enxerga. Marcado
   errado, nada na tela denuncia, e o único sintoma é uma conta se confirmando
   sozinha quando não devia.
+
+---
+
+## ADR 0025, o cofrinho, e a sobra que atravessa o mês
+
+**Data:** 2026-08-20
+**Status:** aceita
+
+### Contexto
+
+Faltava no modelo o dinheiro guardado, e faltava o que acontece com o que sobra
+quando o mês acaba. Até aqui todo mês nascia do zero, então a sobra de agosto
+simplesmente evaporava no dia 1 de setembro, o que não é o que acontece na conta
+dela.
+
+Guardar também não é gastar. O dinheiro sai da conta e continua sendo dela, então
+somar poupança ao gráfico de categorias faria "30% do mês foi guardado" conviver
+com "30% foi moradia", que não são a mesma pergunta.
+
+### Decisão
+
+**A sobra atravessa o mês, e entra sozinha.** A sobra de setembro já vem com o que
+sobrou de agosto dentro dela. Não existe ação de fechar o mês para isso acontecer,
+e **o valor herdado não aparece escrito em lugar nenhum da tela**: ele está dentro
+do número da sobra e o alto do card continua só com a renda prevista.
+
+Na prática a sobra deixa de ser um cálculo do mês e vira uma soma acumulada desde
+o começo: `sobra(m) = Σ renda(k) − gastos(k) − guardado(k)`, para todo `k` até
+`m`. Isso é uma janela em SQL, não um número guardado em coluna, então continua
+valendo a regra de nunca existir número que uma pessoa precise decrementar.
+
+**O cofrinho é um saldo, feito de movimento.** `savings_moves` guarda o que ela
+guardou e o que ela tirou, e o saldo é a soma disso menos os gastos pagos com
+dinheiro do cofrinho. Nunca é uma coluna que alguém atualiza.
+
+**De onde saiu o dinheiro é um eixo novo, separado de por onde ele passou.**
+`entries.funded_by` vale `conta` ou `cofrinho`. Gasto pago pelo cofrinho **não
+reduz a sobra do mês**, reduz o saldo do cofrinho, e **continua no gráfico de
+categorias**, porque continua sendo gasto. É o inverso exato do reembolso, que
+sai do cartão sem ser gasto dela. A escolha só aparece em pix, débito e dinheiro:
+em cartão de crédito quem paga é a fatura, e a fatura sai da conta.
+
+**Guardar é uma decisão, não um resto.** O bot pergunta quanto vai para o
+cofrinho, e pergunta depois das contas do mês pagas, porque antes disso o número
+ainda vai mexer. Como o saldo já entrou sozinho, essa pergunta chegar atrasada
+não quebra nada: ela é só sobre quanto tirar da conta, não sobre o mês fechar.
+
+### Consequência
+
+- A sobra passa a dizer a verdade sobre o que existe na conta, em vez de fingir
+  que todo mês recomeça do zero.
+- O cofrinho não polui o gráfico de categorias, e os dois saldos da tela, o que
+  ela tem guardado e o que têm a devolver para ela, ficam na mesma coluna.
+- **Custo:** gasto esquecido para de morrer no mês em que aconteceu. Antes o erro
+  sumia na virada, agora ele vira saldo inicial errado e contamina todos os meses
+  seguintes. O único conserto é o momento de guardar virar também o momento de
+  conferir, com o valor editável na hora.
+- **Custo:** a sobra vira soma acumulada desde o primeiro mês, então ela depende
+  do histórico inteiro estar lá. Importar só os últimos meses dá um número
+  errado, e nada na tela avisa.
+- **Custo:** `funded_by` é mais uma pergunta na hora de lançar um pix. O padrão
+  ser `conta` é o que segura, mas quem paga do cofrinho e esquece de dizer vê a
+  sobra cair sem motivo.
+- **Custo:** o gráfico de categorias e os três números deixam de fechar entre si.
+  Um gasto do cofrinho aparece no gráfico e não aparece nos números do mês, e a
+  diferença não tem onde ser explicada na tela.

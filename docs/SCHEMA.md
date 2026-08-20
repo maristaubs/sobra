@@ -107,9 +107,18 @@ A interface nunca oferece um botão de trocar entre um e outro. A home é sempre
 `due_date`, e só o gráfico de categorias usa `reference_month`, com o rótulo
 escrito por extenso.
 
+### `savings_moves`
+O cofrinho. `direction` é `guardado` ou `retirado`, e o saldo é sempre soma:
+guardado menos retirado, menos os gastos com `funded_by = 'cofrinho'`. Nenhuma
+coluna guarda o saldo. Ver [ADR 0025](DECISIONS.md).
+
 ### `incomes`
 As entradas do mês. Tem `status` igual ao das parcelas, porque salário do mês que
-vem também é previsto.
+vem também é previsto. `recurring` mais `expected_on` descrevem o salário, que cai
+no mesmo dia todo mês. Entrada variável, como comissão, é uma linha avulsa com
+`recurring = false` e `status = 'confirmado'` no dia em que ela avisa: ela sobe a
+renda prevista e a sobra juntas. **Renda prevista só conta o que é certo**, então
+comissão nunca é estimada antes de cair.
 
 ### `debts` e `debt_payments`
 Módulo separado, não é um `type` de `entries`. `debts` guarda o valor emprestado,
@@ -134,6 +143,8 @@ create type entry_type         as enum ('recorrente', 'parcelado', 'avulso');
 create type installment_status as enum ('previsto', 'confirmado');
 create type card_mode          as enum ('detalhado', 'agregado');
 create type debt_direction     as enum ('eu_devo', 'me_devem');
+create type funding_source     as enum ('conta', 'cofrinho');
+create type savings_direction  as enum ('guardado', 'retirado');
 
 -- cartões e contas ----------------------------------------------------------
 create table public.cards (
@@ -218,6 +229,10 @@ create table public.entries (
   -- aluguel. Recorrente assim confirma sozinho no vencimento. Ver ADR 0017.
   amount_exact       boolean not null default false,
   notes              text,
+  -- de onde saiu o dinheiro, que é outra coisa de por onde ele passou. Gasto
+  -- pago pelo cofrinho não reduz a sobra do mês, reduz o saldo do cofrinho, e
+  -- continua contando no gráfico de categorias. Ver ADR 0025.
+  funded_by          funding_source not null default 'conta',
   source             text not null default 'app'
                      check (source in ('app', 'telegram', 'import')),
   created_at         timestamptz not null default now(),
@@ -279,6 +294,21 @@ create table public.incomes (
 );
 
 create index incomes_by_month on public.incomes (user_id, reference_month);
+
+-- cofrinho: só o que ela guardou e o que ela tirou de propósito. Gasto pago com
+-- dinheiro do cofrinho não entra aqui, ele é deduzido de entries.funded_by, para
+-- não existir o mesmo fato escrito em dois lugares. Ver ADR 0025.
+create table public.savings_moves (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users (id) on delete cascade,
+  direction   savings_direction not null default 'guardado',
+  amount      numeric(12,2) not null check (amount > 0),
+  happened_on date not null,
+  notes       text,
+  created_at  timestamptz not null default now()
+);
+
+create index savings_by_date on public.savings_moves (user_id, happened_on);
 
 -- dívidas, módulo separado -------------------------------------------------------
 create table public.debts (
